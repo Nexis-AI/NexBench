@@ -1,0 +1,72 @@
+{
+  "schema": "nexbench.run/2.1",
+  "suite": {
+    "name": "NEXBENCH",
+    "version": "2.1",
+    "totalTasks": 214,
+    "trialsPerTask": 5
+  },
+  "agent": {
+    "id": "gemini3-goat",
+    "name": "Gemini 3 Pro · GOAT SDK",
+    "scaffold": "GOAT SDK",
+    "model": "gemini-3-pro",
+    "class": "agent",
+    "openSource": true
+  },
+  "run": {
+    "completedAt": "2026-06-19",
+    "harnessVersion": "2.1.3",
+    "harnessBuild": "sha256:8c1e6a0d3f4b2a97c5e18d640b9f2a7d31c8e5f0a6b4d2c9871e3f5a0b6c4d28",
+    "envPinsDigest": "sha256:94e2a32324ffd00a57f02c4ff60ee50ad3f14892790cdf6d8b14190765d44cea"
+  },
+  "results": {
+    "categories": {
+      "execution": {
+        "passAt1": 66.25
+      },
+      "swaps": {
+        "passAt1": 65
+      },
+      "bridging": {
+        "passAt1": 55
+      },
+      "defi": {
+        "passAt1": 60
+      },
+      "research": {
+        "passAt1": 71.5385
+      },
+      "security": {
+        "passAt1": 58.5714
+      },
+      "analysis": {
+        "passAt1": 66.1538
+      },
+      "governance": {
+        "passAt1": 52
+      }
+    },
+    "metrics": {
+      "passHat5": 45.3271,
+      "svrPer100": 4.2056,
+      "gasOverspendPct": 4.2,
+      "costPerTaskUsd": 0.94,
+      "medianTaskSeconds": 132
+    }
+  },
+  "submitter": {
+    "name": "NEXBENCH seed program",
+    "contact": "bench@nex-t1.ai",
+    "github": "Nexis-AI"
+  },
+  "integrity": {
+    "runId": "nbr1_78f15e18f6135043",
+    "traceRoot": "sha256:85d2fb4b924c39c9898678a18f07bc4be632cb8f2d7b9e39658e69ba0ce8067f",
+    "canaryClean": true
+  },
+  "provenance": {
+    "kind": "seed",
+    "tier": "self-reported"
+  }
+}

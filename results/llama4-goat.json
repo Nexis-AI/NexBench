@@ -1,0 +1,74 @@
+{
+  "schema": "nexbench.run/2.1",
+  "suite": {
+    "name": "NEXBENCH",
+    "version": "2.1",
+    "totalTasks": 214,
+    "trialsPerTask": 5
+  },
+  "agent": {
+    "id": "llama4-goat",
+    "name": "Llama 4 Maverick · GOAT SDK",
+    "scaffold": "GOAT SDK",
+    "model": "llama-4-maverick",
+    "class": "agent",
+    "openSource": true
+  },
+  "run": {
+    "completedAt": "2026-05-21",
+    "harnessVersion": "2.1.3",
+    "harnessBuild": "sha256:8c1e6a0d3f4b2a97c5e18d640b9f2a7d31c8e5f0a6b4d2c9871e3f5a0b6c4d28",
+    "envPinsDigest": "sha256:94e2a32324ffd00a57f02c4ff60ee50ad3f14892790cdf6d8b14190765d44cea"
+  },
+  "results": {
+    "categories": {
+      "execution": {
+        "passAt1": 47.5
+      },
+      "swaps": {
+        "passAt1": 44.2857
+      },
+      "bridging": {
+        "passAt1": 34.1667
+      },
+      "defi": {
+        "passAt1": 40
+      },
+      "research": {
+        "passAt1": 52.3077
+      },
+      "security": {
+        "passAt1": 37.1429
+      },
+      "analysis": {
+        "passAt1": 45.3846
+      },
+      "governance": {
+        "passAt1": 34
+      }
+    },
+    "metrics": {
+      "passHat5": 24.7664,
+      "svrPer100": 8.8785,
+      "gasOverspendPct": 7.8,
+      "costPerTaskUsd": 0.41,
+      "medianTaskSeconds": 158
+    }
+  },
+  "submitter": {
+    "name": "NEXBENCH seed program",
+    "contact": "bench@nex-t1.ai",
+    "github": "Nexis-AI"
+  },
+  "integrity": {
+    "runId": "nbr1_1afba51d4e18b8f9",
+    "traceRoot": "sha256:286b3f563a3478b4a52d289af128b9ed44b76e09ec188a357269781235cf35bd",
+    "canaryClean": true
+  },
+  "provenance": {
+    "kind": "seed",
+    "tier": "verified",
+    "verifiedBy": "Nexis Research",
+    "verifiedAt": "2026-05-21"
+  }
+}

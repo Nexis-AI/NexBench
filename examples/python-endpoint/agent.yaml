@@ -1,0 +1,7 @@
+# agent.yaml — an endpoint adapter (any language)
+id: example-py-agent
+endpoint: http://localhost:8700/step   # the harness POSTs the observation, reads the action
+model: any                             # bring your own — API or self-hosted
+networks: [evm, solana]
+timeout_s: 900
+cost_cap_usd: 10

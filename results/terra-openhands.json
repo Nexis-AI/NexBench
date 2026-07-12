@@ -1,0 +1,74 @@
+{
+  "schema": "nexbench.run/2.1",
+  "suite": {
+    "name": "NEXBENCH",
+    "version": "2.1",
+    "totalTasks": 214,
+    "trialsPerTask": 5
+  },
+  "agent": {
+    "id": "terra-openhands",
+    "name": "GPT-5.6 Terra · OpenHands-Web3",
+    "scaffold": "OpenHands-Web3",
+    "model": "gpt-5.6-terra",
+    "class": "agent",
+    "openSource": true
+  },
+  "run": {
+    "completedAt": "2026-06-28",
+    "harnessVersion": "2.1.3",
+    "harnessBuild": "sha256:8c1e6a0d3f4b2a97c5e18d640b9f2a7d31c8e5f0a6b4d2c9871e3f5a0b6c4d28",
+    "envPinsDigest": "sha256:94e2a32324ffd00a57f02c4ff60ee50ad3f14892790cdf6d8b14190765d44cea"
+  },
+  "results": {
+    "categories": {
+      "execution": {
+        "passAt1": 79.375
+      },
+      "swaps": {
+        "passAt1": 75
+      },
+      "bridging": {
+        "passAt1": 66.6667
+      },
+      "defi": {
+        "passAt1": 71.3333
+      },
+      "research": {
+        "passAt1": 73.8462
+      },
+      "security": {
+        "passAt1": 65
+      },
+      "analysis": {
+        "passAt1": 73.0769
+      },
+      "governance": {
+        "passAt1": 60
+      }
+    },
+    "metrics": {
+      "passHat5": 55.6075,
+      "svrPer100": 2.8037,
+      "gasOverspendPct": 2.9,
+      "costPerTaskUsd": 2.47,
+      "medianTaskSeconds": 204
+    }
+  },
+  "submitter": {
+    "name": "NEXBENCH seed program",
+    "contact": "bench@nex-t1.ai",
+    "github": "Nexis-AI"
+  },
+  "integrity": {
+    "runId": "nbr1_dac192018331f820",
+    "traceRoot": "sha256:d22cb6ceb322039bcb486d2c1d7128d85bc4a531817fd290cffdf9a58af26144",
+    "canaryClean": true
+  },
+  "provenance": {
+    "kind": "seed",
+    "tier": "verified",
+    "verifiedBy": "Nexis Research",
+    "verifiedAt": "2026-06-28"
+  }
+}

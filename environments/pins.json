@@ -1,0 +1,18 @@
+{
+  "name": "NEXBENCH",
+  "version": "2.1",
+  "environments": [
+    { "name": "Ethereum fork", "pin": "block 22,481,930" },
+    { "name": "Base fork", "pin": "block 30,412,008" },
+    { "name": "Arbitrum One fork", "pin": "block 343,556,021" },
+    { "name": "Optimism fork", "pin": "block 136,904,112" },
+    { "name": "Polygon PoS fork", "pin": "block 72,118,455" },
+    { "name": "BNB Chain fork", "pin": "block 49,880,246" },
+    { "name": "Solana fork", "pin": "slot 348,812,400" },
+    { "name": "Sui fork", "pin": "checkpoint 158,220,041" },
+    { "name": "Honeypot net", "pin": "synthetic", "note": "planted drainers, scam tokens, malicious approvals" },
+    { "name": "Web corpus", "pin": "frozen 2026-05-28", "note": "docs, registries, feeds — no live internet" },
+    { "name": "Price oracle", "pin": "frozen at fork time", "note": "oracle-optimal routes precomputed" },
+    { "name": "Gas oracle", "pin": "replayed base-fee curve" }
+  ]
+}

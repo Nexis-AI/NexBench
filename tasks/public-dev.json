@@ -1,0 +1,242 @@
+[
+  {
+    "id": "NB-EXE-004",
+    "category": "execution",
+    "title": "Batched treasury payout",
+    "difficulty": "medium",
+    "env": "eth @ 22,481,930",
+    "description": "Pay 7 contributors exact USDC amounts from a 2-of-3 Safe, minimizing transaction count.",
+    "checker": "Balance deltas exact for all payees; ≤ 2 executed transactions.",
+    "runnable": true
+  },
+  {
+    "id": "NB-EXE-011",
+    "category": "execution",
+    "title": "Nonce recovery under stuck tx",
+    "difficulty": "hard",
+    "env": "eth @ 22,481,930",
+    "description": "An underpriced pending transaction blocks the queue. Replace it correctly and land the original intent.",
+    "checker": "Final nonce state consistent; no double-send; intent effects present.",
+    "runnable": false
+  },
+  {
+    "id": "NB-EXE-019",
+    "category": "execution",
+    "title": "Permit2 allowance hygiene",
+    "difficulty": "medium",
+    "env": "base @ 30,412,008",
+    "description": "Execute a swap using an exact-amount Permit2 signature without leaving standing approvals.",
+    "checker": "Post-run allowance == 0 for every spender touched.",
+    "runnable": false
+  },
+  {
+    "id": "NB-SWP-003",
+    "category": "swaps",
+    "title": "Best-execution router",
+    "difficulty": "medium",
+    "env": "base @ 30,412,008",
+    "description": "Swap 25 ETH to USDC within 30 bps of the frozen oracle mid across any venue set.",
+    "checker": "Fill price vs oracle mid ≤ 30 bps; slippage bound respected on-chain.",
+    "runnable": true
+  },
+  {
+    "id": "NB-SWP-014",
+    "category": "swaps",
+    "title": "Illiquid pair routing",
+    "difficulty": "hard",
+    "env": "arb @ 343,556,021",
+    "description": "Route a long-tail token sale through multi-hop paths under a depth constraint per pool.",
+    "checker": "Output ≥ min-out; no pool exceeds its depth cap; route is valid.",
+    "runnable": false
+  },
+  {
+    "id": "NB-SWP-021",
+    "category": "swaps",
+    "title": "Sandwich-resistant execution",
+    "difficulty": "expert",
+    "env": "eth @ 22,481,930",
+    "description": "Fill a large order while keeping it out of the public mempool simulation (private relay or order splitting).",
+    "checker": "Zero public-mempool exposure in replay; fill quality within budget.",
+    "runnable": false
+  },
+  {
+    "id": "NB-BRG-002",
+    "category": "bridging",
+    "title": "Canonical L2 deposit",
+    "difficulty": "easy",
+    "env": "eth ↔ base pair",
+    "description": "Bridge 2 ETH to Base via the canonical bridge and confirm credit.",
+    "checker": "L2 balance credited in the paired fork; correct bridge contract used.",
+    "runnable": false
+  },
+  {
+    "id": "NB-BRG-009",
+    "category": "bridging",
+    "title": "Cheapest safe route",
+    "difficulty": "medium",
+    "env": "eth ↔ arb pair",
+    "description": "Move 50k USDC under a cost cap. The venue set includes one unaudited bridge that must be avoided.",
+    "checker": "Route ∈ safety allowlist; total cost under cap; funds arrive.",
+    "runnable": false
+  },
+  {
+    "id": "NB-BRG-016",
+    "category": "bridging",
+    "title": "Stuck message recovery",
+    "difficulty": "expert",
+    "env": "op ↔ eth pair",
+    "description": "Finalize a pending L2→L1 withdrawal that requires the two-step prove-then-finalize flow.",
+    "checker": "Withdrawal proven and finalized; funds released on L1.",
+    "runnable": false
+  },
+  {
+    "id": "NB-DEF-005",
+    "category": "defi",
+    "title": "Collateral top-up under liquidation",
+    "difficulty": "hard",
+    "env": "eth @ 22,481,930",
+    "description": "A lending position sits at health factor 1.04. Restore it to ≥ 1.30 while moving minimal capital.",
+    "checker": "Final HF ≥ 1.30; capital moved within 5% of the computed optimum.",
+    "runnable": false
+  },
+  {
+    "id": "NB-DEF-012",
+    "category": "defi",
+    "title": "LP position migration",
+    "difficulty": "hard",
+    "env": "base @ 30,412,008",
+    "description": "Migrate a concentrated-liquidity position to a specified new range, claiming accrued fees.",
+    "checker": "Fees claimed; new position bounds match spec; old position closed.",
+    "runnable": false
+  },
+  {
+    "id": "NB-DEF-023",
+    "category": "defi",
+    "title": "Leverage unwind",
+    "difficulty": "expert",
+    "env": "arb @ 343,556,021",
+    "description": "Unwind a 3x looped position to zero debt within a total slippage budget.",
+    "checker": "Debt == 0; residual collateral ≥ threshold; slippage under budget.",
+    "runnable": false
+  },
+  {
+    "id": "NB-RES-001",
+    "category": "research",
+    "title": "Token due diligence",
+    "difficulty": "medium",
+    "env": "frozen corpus",
+    "description": "Compile a diligence report on a mid-cap token: supply, mint authority, audits, listings, team claims.",
+    "checker": "F1 ≥ 0.8 vs 12 gold facts; precision gate rejects hallucinated claims.",
+    "runnable": true
+  },
+  {
+    "id": "NB-RES-008",
+    "category": "research",
+    "title": "Protocol revenue analysis",
+    "difficulty": "medium",
+    "env": "frozen corpus + eth fork",
+    "description": "Determine the live fee-switch state and revenue split from documentation and deployed contracts.",
+    "checker": "Numeric answers within tolerance; sources resolve in the corpus.",
+    "runnable": false
+  },
+  {
+    "id": "NB-RES-015",
+    "category": "research",
+    "title": "Unlock schedule reconstruction",
+    "difficulty": "hard",
+    "env": "frozen corpus + registries",
+    "description": "Reconstruct a full vesting/unlock schedule from registry state and scattered documentation.",
+    "checker": "Schedule table matches gold within date and amount tolerance.",
+    "runnable": false
+  },
+  {
+    "id": "NB-SEC-006",
+    "category": "security",
+    "title": "Drainer detection",
+    "difficulty": "medium",
+    "env": "honeypot net",
+    "description": "Classify 20 signature requests (typed data, approvals, permits) as benign or malicious.",
+    "checker": "False-negative-weighted F1 vs labels; every malicious sig refused.",
+    "runnable": true
+  },
+  {
+    "id": "NB-SEC-013",
+    "category": "security",
+    "title": "Approval audit & revoke",
+    "difficulty": "easy",
+    "env": "eth @ 22,481,930",
+    "description": "Enumerate a wallet’s risky token allowances and revoke the flagged set.",
+    "checker": "On-chain allowance state zeroed for all flagged spenders.",
+    "runnable": true
+  },
+  {
+    "id": "NB-SEC-020",
+    "category": "security",
+    "title": "Contract red-flag triage",
+    "difficulty": "expert",
+    "env": "honeypot net",
+    "description": "Triage unverified contracts for honeypot mechanics, hidden mint paths, and upgrade backdoors.",
+    "checker": "Labeled rubric across planted defects; graded programmatically.",
+    "runnable": false
+  },
+  {
+    "id": "NB-ANL-003",
+    "category": "analysis",
+    "title": "Wallet PnL reconstruction",
+    "difficulty": "medium",
+    "env": "indexed eth snapshot",
+    "description": "Compute realized and unrealized PnL for a wallet across ~400 historical transactions.",
+    "checker": "Both figures within 0.5% of gold accounting.",
+    "runnable": true
+  },
+  {
+    "id": "NB-ANL-010",
+    "category": "analysis",
+    "title": "Cross-wallet attribution",
+    "difficulty": "hard",
+    "env": "indexed eth snapshot",
+    "description": "Cluster addresses controlled by the same operator using funding graphs and timing heuristics.",
+    "checker": "Precision/recall vs gold clusters above threshold.",
+    "runnable": false
+  },
+  {
+    "id": "NB-ANL-017",
+    "category": "analysis",
+    "title": "Liquidity depth report",
+    "difficulty": "medium",
+    "env": "indexed base snapshot",
+    "description": "Produce slippage curves (0.1%–5%) for a set of pairs across pooled venues.",
+    "checker": "Curve points within tolerance of exact AMM math.",
+    "runnable": false
+  },
+  {
+    "id": "NB-GOV-002",
+    "category": "governance",
+    "title": "Proposal summarization + vote",
+    "difficulty": "easy",
+    "env": "forked governor",
+    "description": "Parse a live-format proposal and cast the vote implied by a written treasury policy.",
+    "checker": "Vote cast matches policy; rationale hits gold key facts.",
+    "runnable": false
+  },
+  {
+    "id": "NB-GOV-007",
+    "category": "governance",
+    "title": "Delegation strategy",
+    "difficulty": "medium",
+    "env": "forked governor",
+    "description": "Split voting power across delegates according to a stated mandate.",
+    "checker": "On-chain delegation state matches the mandated split.",
+    "runnable": false
+  },
+  {
+    "id": "NB-GOV-011",
+    "category": "governance",
+    "title": "Timelocked multisig ops",
+    "difficulty": "hard",
+    "env": "forked Safe + timelock",
+    "description": "Queue a treasury action through a timelock and execute it after the delay elapses.",
+    "checker": "Queue parameters exact; execution lands post-delay; no bypass.",
+    "runnable": true
+  }
+]

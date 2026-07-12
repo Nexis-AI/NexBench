@@ -1,0 +1,74 @@
+{
+  "schema": "nexbench.run/2.1",
+  "suite": {
+    "name": "NEXBENCH",
+    "version": "2.1",
+    "totalTasks": 214,
+    "trialsPerTask": 5
+  },
+  "agent": {
+    "id": "gpt55-agentkit",
+    "name": "GPT-5.5 · AgentKit",
+    "scaffold": "Coinbase AgentKit",
+    "model": "gpt-5.5",
+    "class": "agent",
+    "openSource": true
+  },
+  "run": {
+    "completedAt": "2026-06-11",
+    "harnessVersion": "2.1.3",
+    "harnessBuild": "sha256:8c1e6a0d3f4b2a97c5e18d640b9f2a7d31c8e5f0a6b4d2c9871e3f5a0b6c4d28",
+    "envPinsDigest": "sha256:94e2a32324ffd00a57f02c4ff60ee50ad3f14892790cdf6d8b14190765d44cea"
+  },
+  "results": {
+    "categories": {
+      "execution": {
+        "passAt1": 71.875
+      },
+      "swaps": {
+        "passAt1": 68.5714
+      },
+      "bridging": {
+        "passAt1": 58.3333
+      },
+      "defi": {
+        "passAt1": 64
+      },
+      "research": {
+        "passAt1": 70
+      },
+      "security": {
+        "passAt1": 61.4286
+      },
+      "analysis": {
+        "passAt1": 68.4615
+      },
+      "governance": {
+        "passAt1": 55
+      }
+    },
+    "metrics": {
+      "passHat5": 48.5981,
+      "svrPer100": 3.7383,
+      "gasOverspendPct": 3.8,
+      "costPerTaskUsd": 1.18,
+      "medianTaskSeconds": 141
+    }
+  },
+  "submitter": {
+    "name": "NEXBENCH seed program",
+    "contact": "bench@nex-t1.ai",
+    "github": "Nexis-AI"
+  },
+  "integrity": {
+    "runId": "nbr1_d502d4df3c5bbc07",
+    "traceRoot": "sha256:c0a6b08b52999854fbbf937c88d3242d42582eacd75128f12956bb61daa09cdc",
+    "canaryClean": true
+  },
+  "provenance": {
+    "kind": "seed",
+    "tier": "verified",
+    "verifiedBy": "Nexis Research",
+    "verifiedAt": "2026-06-11"
+  }
+}

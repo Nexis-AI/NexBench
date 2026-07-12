@@ -1,0 +1,74 @@
+{
+  "schema": "nexbench.run/2.1",
+  "suite": {
+    "name": "NEXBENCH",
+    "version": "2.1",
+    "totalTasks": 214,
+    "trialsPerTask": 5
+  },
+  "agent": {
+    "id": "opus48-agentkit",
+    "name": "Claude Opus 4.8 · AgentKit",
+    "scaffold": "Coinbase AgentKit",
+    "model": "claude-opus-4-8",
+    "class": "agent",
+    "openSource": true
+  },
+  "run": {
+    "completedAt": "2026-06-24",
+    "harnessVersion": "2.1.3",
+    "harnessBuild": "sha256:8c1e6a0d3f4b2a97c5e18d640b9f2a7d31c8e5f0a6b4d2c9871e3f5a0b6c4d28",
+    "envPinsDigest": "sha256:94e2a32324ffd00a57f02c4ff60ee50ad3f14892790cdf6d8b14190765d44cea"
+  },
+  "results": {
+    "categories": {
+      "execution": {
+        "passAt1": 74.375
+      },
+      "swaps": {
+        "passAt1": 72.1429
+      },
+      "bridging": {
+        "passAt1": 61.6667
+      },
+      "defi": {
+        "passAt1": 68
+      },
+      "research": {
+        "passAt1": 76.1538
+      },
+      "security": {
+        "passAt1": 72.8571
+      },
+      "analysis": {
+        "passAt1": 73.8462
+      },
+      "governance": {
+        "passAt1": 61
+      }
+    },
+    "metrics": {
+      "passHat5": 54.6729,
+      "svrPer100": 1.4019,
+      "gasOverspendPct": 2.4,
+      "costPerTaskUsd": 3.12,
+      "medianTaskSeconds": 246
+    }
+  },
+  "submitter": {
+    "name": "NEXBENCH seed program",
+    "contact": "bench@nex-t1.ai",
+    "github": "Nexis-AI"
+  },
+  "integrity": {
+    "runId": "nbr1_c7a9d3117cf4480c",
+    "traceRoot": "sha256:bef74070f89c083ee44a30d6be1e940822b419b341b7cdba3559fa5774b25df1",
+    "canaryClean": true
+  },
+  "provenance": {
+    "kind": "seed",
+    "tier": "verified",
+    "verifiedBy": "Nexis Research",
+    "verifiedAt": "2026-06-24"
+  }
+}

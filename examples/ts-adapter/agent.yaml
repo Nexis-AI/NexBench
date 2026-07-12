@@ -1,0 +1,7 @@
+# agent.yaml — everything nexbench needs to run your agent
+id: example-ts-agent
+adapter: ./adapter.ts          # or endpoint: http://localhost:8700/step
+model: any                     # bring your own — API or self-hosted
+networks: [evm, solana]
+timeout_s: 900                 # per-task wall-clock cap
+cost_cap_usd: 10               # per-task spend cap

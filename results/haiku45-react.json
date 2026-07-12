@@ -1,0 +1,74 @@
+{
+  "schema": "nexbench.run/2.1",
+  "suite": {
+    "name": "NEXBENCH",
+    "version": "2.1",
+    "totalTasks": 214,
+    "trialsPerTask": 5
+  },
+  "agent": {
+    "id": "haiku45-react",
+    "name": "Claude Haiku 4.5 · ReAct-Web3",
+    "scaffold": "ReAct-Web3 (reference)",
+    "model": "claude-haiku-4-5",
+    "class": "agent",
+    "openSource": true
+  },
+  "run": {
+    "completedAt": "2026-05-12",
+    "harnessVersion": "2.1.3",
+    "harnessBuild": "sha256:8c1e6a0d3f4b2a97c5e18d640b9f2a7d31c8e5f0a6b4d2c9871e3f5a0b6c4d28",
+    "envPinsDigest": "sha256:94e2a32324ffd00a57f02c4ff60ee50ad3f14892790cdf6d8b14190765d44cea"
+  },
+  "results": {
+    "categories": {
+      "execution": {
+        "passAt1": 44.375
+      },
+      "swaps": {
+        "passAt1": 41.4286
+      },
+      "bridging": {
+        "passAt1": 30
+      },
+      "defi": {
+        "passAt1": 36.6667
+      },
+      "research": {
+        "passAt1": 49.2308
+      },
+      "security": {
+        "passAt1": 40
+      },
+      "analysis": {
+        "passAt1": 43.0769
+      },
+      "governance": {
+        "passAt1": 31
+      }
+    },
+    "metrics": {
+      "passHat5": 22.4299,
+      "svrPer100": 7.0093,
+      "gasOverspendPct": 6.2,
+      "costPerTaskUsd": 0.12,
+      "medianTaskSeconds": 74
+    }
+  },
+  "submitter": {
+    "name": "Nexis Research",
+    "contact": "bench@nex-t1.ai",
+    "github": "Nexis-AI"
+  },
+  "integrity": {
+    "runId": "nbr1_506a8accadec7989",
+    "traceRoot": "sha256:a542a6c2116cc34fcc14ebadff12cd6d778da87d2944347e8b4f01cb9cc91c02",
+    "canaryClean": true
+  },
+  "provenance": {
+    "kind": "reference",
+    "tier": "verified",
+    "verifiedBy": "Nexis Research",
+    "verifiedAt": "2026-05-12"
+  }
+}

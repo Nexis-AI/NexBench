@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+message: "If you use NEXBENCH in your research, please cite it as below."
+title: "NEXBENCH: a reproducible benchmark for autonomous Web3 agents"
+abstract: >-
+  NEXBENCH evaluates autonomous agents on 214 on-chain tasks across eight
+  categories — execution, swaps, bridging, DeFi, research, security, analysis,
+  and governance — run five times each against deterministic forked-mainnet
+  environments and graded by programmatic verifiers. Results are hash-sealed
+  run manifests validated by a twelve-check tamper-evident intake pipeline.
+type: software
+version: "2.1.3"
+date-released: 2026-06-02
+license: Apache-2.0
+repository-code: "https://github.com/Nexis-AI/NexBench"
+url: "https://nex-t1.ai/benchmarks"
+authors:
+  - name: "Nexis AI"
+keywords:
+  - benchmark
+  - web3
+  - autonomous agents
+  - llm evaluation
+  - defi
+  - onchain
+preferred-citation:
+  type: article
+  title: "NEXBENCH: a reproducible benchmark for autonomous Web3 agents"
+  year: 2026
+  authors:
+    - name: "Nexis AI"
