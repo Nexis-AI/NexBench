@@ -5,3 +5,7 @@ runs/
 .DS_Store
 *.tsbuildinfo
 receipt-*.json
+.npmrc
+
+__pycache__/
+*.pyc
