@@ -28,27 +28,31 @@ Two design choices set it apart:
 
 ## Quickstart
 
-Requires **Node ≥ 20**.
+Requires **Node ≥ 20**. Install from npm (zero runtime dependencies):
 
 ```bash
-# clone + build (zero runtime dependencies)
-git clone https://github.com/Nexis-AI/NexBench.git
-cd NexBench
-npm install        # builds via the prepare script
-npm link           # optional: puts `nexbench` on your PATH
+npm install -g nexbench      # or run ad-hoc with: npx nexbench <command>
 
-# run the reference baseline over the runnable offline suite
+# scaffold a starter agent and run it against the offline suite
+nexbench init my-agent && cd my-agent
+nexbench run --agent ./agent.yaml --trials 5
+nexbench report              # re-print the last run
+
+# or run a built-in reference agent
 nexbench run --agent scripted
 
 # see the task split (24 public of 214)
 nexbench tasks
 
 # validate a run manifest against the 12 intake checks
-nexbench validate results/nex-t1.json
+npx nexbench validate ./my-run.json
 
 # recompute the pinned-environment digest
 nexbench pins --digest
 ```
+
+Prefer to work from source (to add tasks or hack the harness)? `git clone` this repo,
+`npm install` (builds via the `prepare` script), and `npm link`.
 
 `nexbench run --agent scripted` executes six real tasks (five trials each) against a
 deterministic local world and prints a scorecard:

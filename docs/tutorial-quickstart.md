@@ -6,17 +6,12 @@ This walks through installing the harness and running the bundled offline suite.
 ## 1. Install
 
 ```bash
-git clone https://github.com/Nexis-AI/NexBench.git
-cd NexBench
-npm install          # builds the package via the prepare script
+npm install -g nexbench      # or run ad-hoc with: npx nexbench <command>
 ```
 
-Optionally put the CLI on your PATH:
-
-```bash
-npm link             # now `nexbench` works anywhere
-# otherwise prefix commands with:  node dist/src/cli/index.js
-```
+That's it — the package is self-contained (zero runtime dependencies) and ships the offline
+suite. To work from source instead (to add tasks or hack the harness), `git clone` the repo,
+`npm install`, and `npm link`.
 
 ## 2. See the task suite
 

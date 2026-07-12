@@ -5,7 +5,9 @@
  */
 
 import { BENCH_NAME, BENCH_REPO_HREF, BENCH_VERSION } from '../core/suite.js';
+import { initCmd } from './commands/init.js';
 import { pinsCmd } from './commands/pins.js';
+import { reportCmd } from './commands/report.js';
 import { runCmd } from './commands/run.js';
 import { submitCmd } from './commands/submit.js';
 import { tasksCmd } from './commands/tasks.js';
@@ -20,7 +22,9 @@ ${c.bold('USAGE')}
   nexbench <command> [options]
 
 ${c.bold('COMMANDS')}
+  init         Scaffold a starter agent (agent.yaml + adapter) you can run now
   run          Run the runnable public-dev suite with an agent and score it
+  report       Re-print the scorecard from a saved run
   tasks        List the public-dev task split (24 of 214), runnable flagged
   validate     Run the 12 intake checks against a run manifest
   verify       Recompute a manifest's run id, digest, and grid alignment
@@ -31,8 +35,9 @@ ${c.bold('COMMANDS')}
   version      Print the version
 
 ${c.bold('EXAMPLES')}
+  nexbench init my-agent && cd my-agent    ${c.gray('# scaffold, then:')}
+  nexbench run --agent ./agent.yaml --trials 5
   nexbench run --agent scripted            ${c.gray('# reference baseline over the local suite')}
-  nexbench run --agent ./my-adapter.js     ${c.gray('# your adapter (default export)')}
   nexbench run --agent http://localhost:8700/step
   nexbench validate results/nex-t1.json
   nexbench pins --digest
@@ -41,11 +46,17 @@ ${c.gray(BENCH_REPO_HREF)}
 `;
 
 const COMMAND_HELP: Record<string, string> = {
-  run: `nexbench run [--agent scripted|example|<path>|<url>] [--trials N] [--out <dir>] [--json]
+  init: `nexbench init <name>
+  Scaffolds <name>/ with an agent.yaml, a runnable adapter.mjs starter, and a
+  README. Then: cd <name> && nexbench run --agent ./agent.yaml`,
+  run: `nexbench run [--agent scripted|example|<path>|<agent.yaml>|<url>] [--trials N] [--out <dir>] [--json]
   Runs the runnable public-dev tasks (offline, deterministic) and prints a
-  scorecard. --agent accepts a built-in ("scripted", "example"), a path to a JS
-  module with a default StepFn/Agent export, or an HTTP /step endpoint URL.
-  Writes runs/<stamp>/dev-report.json and trace.json.`,
+  scorecard. --agent accepts a built-in ("scripted", "example"), an agent.yaml
+  config, a path to a JS module with a default StepFn/Agent export, or an HTTP
+  /step endpoint URL. Writes runs/<stamp>/dev-report.json and trace.json.`,
+  report: `nexbench report [<dir>] [--json]
+  Re-prints the scorecard from a saved run. Defaults to the most recent run
+  under runs/.`,
   tasks: `nexbench tasks [--category <id|code>] [--json]
   Lists the 24 public-dev tasks grouped by category and flags which run offline.`,
   validate: `nexbench validate <manifest.json> [--known <dir>] [--json]
@@ -66,8 +77,12 @@ async function main(): Promise<void> {
   const args = parseArgs(rest);
 
   switch (cmd) {
+    case 'init':
+      return initCmd(args);
     case 'run':
       return runCmd(args);
+    case 'report':
+      return reportCmd(args);
     case 'tasks':
       return tasksCmd(args);
     case 'validate':
