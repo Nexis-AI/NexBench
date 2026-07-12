@@ -1,7 +1,10 @@
 # CLI reference
 
-`nexbench` is a zero-dependency command-line tool. After `npm install` (which builds the
-package) run it via `npm link`, `npx nexbench`, or `node dist/src/cli/index.js`.
+`nexbench` is a zero-dependency command-line tool. Install it from npm:
+
+```bash
+npm install -g nexbench      # or run ad-hoc: npx nexbench <command>
+```
 
 ```
 nexbench <command> [options]
@@ -9,6 +12,24 @@ nexbench <command> [options]
 
 Global: every command supports `--json` for machine-readable output where meaningful, and
 respects `NO_COLOR`.
+
+---
+
+## `nexbench init`
+
+Scaffold a starter agent you can run immediately.
+
+```
+nexbench init <name>
+```
+
+Creates `<name>/` with an `agent.yaml`, a runnable `adapter.mjs` (solves two tasks as a
+starting point), and a README. Then:
+
+```bash
+cd <name>
+nexbench run --agent ./agent.yaml
+```
 
 ---
 
@@ -23,10 +44,13 @@ nexbench run [--agent <spec>] [--trials <N>] [--out <dir>] [--json]
 
 | Option | Default | Meaning |
 |--------|---------|---------|
-| `--agent` | `example` | `scripted`, `example`, a path to a JS module with a default `StepFn`/`Agent` export, or an `http(s)://…/step` endpoint URL |
+| `--agent` | `example` | `scripted`, `example`, an `agent.yaml` config, a path to a JS module with a default `StepFn`/`Agent` export, or an `http(s)://…/step` endpoint URL |
 | `--trials` | `5` | Trials per task |
 | `--out` | `runs/<stamp>` | Directory to write `dev-report.json` and `trace.json` |
 | `--json` | off | Emit the `nexbench.dev/2.1` report as JSON to stdout |
+
+An `agent.yaml` sets `adapter:` (a path to a JS/`.mjs` module) **or** `endpoint:` (an HTTP
+`/step` URL); a TypeScript `adapter:` must be compiled to `.js` first.
 
 The result is a **development report** (`nexbench.dev/2.1`) over the runnable subset — a
 real, reproducible score, but explicitly *not* a leaderboard manifest (the full 214-task
@@ -34,9 +58,21 @@ suite needs the reference environment). Examples:
 
 ```bash
 nexbench run --agent scripted           # reference baseline (solves everything)
-nexbench run --agent ./adapter.js       # your adapter
+nexbench run --agent ./agent.yaml       # your agent, via its config
+nexbench run --agent ./adapter.js       # or a module directly
 nexbench run --agent http://localhost:8700/step --trials 3
 ```
+
+## `nexbench report`
+
+Re-print the scorecard from a saved run without re-executing it.
+
+```
+nexbench report [<dir>] [--json]
+```
+
+With no argument it reads the most recent run under `runs/`; pass a run directory (or a
+`dev-report.json` path) to print a specific one.
 
 ## `nexbench tasks`
 

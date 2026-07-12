@@ -5,34 +5,9 @@ import { join } from 'node:path';
 
 import { categoryById } from '../../core/suite.js';
 import { RUNNABLE_TASKS } from '../../env/local/tasks.js';
-import type { Action, AgentLike, Observation } from '../../env/types.js';
 import { runSuite, type DevReport } from '../../harness/run.js';
-import { exampleAgent } from '../../agents/example-agent.js';
-import { scriptedBaseline } from '../../agents/scripted-baseline.js';
-import { type Args, bar, c, fail, pad, padStart } from '../util.js';
-
-async function resolveAgent(spec: string): Promise<{ agent: AgentLike; label: string }> {
-  if (spec === 'scripted' || spec === 'baseline') return { agent: scriptedBaseline, label: 'scripted-baseline' };
-  if (spec === 'example') return { agent: exampleAgent, label: 'example-agent' };
-  if (/^https?:\/\//.test(spec)) return { agent: endpointAgent(spec), label: `endpoint:${spec}` };
-  // Otherwise treat as a path to a JS module exporting a default StepFn/Agent.
-  const mod = (await import(spec)) as { default?: AgentLike };
-  if (!mod.default) fail(`agent module ${spec} has no default export`);
-  return { agent: mod.default as AgentLike, label: spec };
-}
-
-/** Wrap an HTTP `/step` endpoint as an agent (language-agnostic adapters). */
-function endpointAgent(url: string): AgentLike {
-  return async (obs: Observation): Promise<Action> => {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(obs),
-    });
-    if (!res.ok) throw new Error(`endpoint ${url} returned ${res.status}`);
-    return (await res.json()) as Action;
-  };
-}
+import { resolveAgent } from '../agent-config.js';
+import { type Args, bar, c, pad, padStart } from '../util.js';
 
 export async function runCmd(args: Args): Promise<void> {
   const spec = String(args.flags.agent ?? 'example');
@@ -61,7 +36,7 @@ export async function runCmd(args: Args): Promise<void> {
   process.stderr.write(c.dim(`\nwrote ${join(outDir, 'dev-report.json')} and trace.json\n`));
 }
 
-function printScorecard(report: DevReport): void {
+export function printScorecard(report: DevReport): void {
   const { results } = report;
   process.stdout.write(`\n${c.bold('NEXBENCH')} ${c.dim('public-dev')} · agent ${c.cyan(report.agent.name)}\n`);
   process.stdout.write(c.gray(`schema ${report.schema} · ${results.tasks.length} tasks · ${report.suite.trialsPerTask} trials each\n\n`));

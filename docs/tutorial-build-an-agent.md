@@ -4,6 +4,10 @@ An agent is a single **step function**. The harness owns the loop, the clock, th
 all entropy; your job is to look at an observation and return the next action. This tutorial
 builds an adapter that solves a couple of the runnable public-dev tasks, runs it, and scores it.
 
+**Fastest start:** `nexbench init my-agent && cd my-agent && nexbench run --agent ./agent.yaml`
+scaffolds a runnable `adapter.mjs` you can edit. The rest of this page explains the contract it
+is built on.
+
 ## The contract
 
 ```ts
