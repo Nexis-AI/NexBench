@@ -1,0 +1,110 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/Nexis-AI/NexBench/schemas/nexbench.run-2.1.schema.json",
+  "title": "NEXBENCH run manifest",
+  "description": "Wire format nexbench.run/2.1 — the canonical, tamper-evident artifact for one leaderboard entry.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "suite", "agent", "submitter", "run", "results", "integrity", "provenance"],
+  "properties": {
+    "schema": { "const": "nexbench.run/2.1" },
+    "suite": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version", "totalTasks", "trialsPerTask"],
+      "properties": {
+        "name": { "const": "NEXBENCH" },
+        "version": { "const": "2.1" },
+        "totalTasks": { "const": 214 },
+        "trialsPerTask": { "const": 5 }
+      }
+    },
+    "agent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "scaffold", "model", "class", "openSource"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,63}$" },
+        "name": { "type": "string", "minLength": 2, "maxLength": 80 },
+        "scaffold": { "type": "string", "minLength": 2, "maxLength": 80 },
+        "model": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "class": { "enum": ["agent", "human-baseline", "scripted-baseline"] },
+        "openSource": { "type": "boolean" }
+      }
+    },
+    "submitter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "contact"],
+      "properties": {
+        "name": { "type": "string", "minLength": 2, "maxLength": 80 },
+        "contact": { "type": "string", "minLength": 5, "maxLength": 120 },
+        "github": { "type": "string", "maxLength": 80 }
+      }
+    },
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["completedAt", "harnessVersion", "harnessBuild", "envPinsDigest"],
+      "properties": {
+        "completedAt": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+        "harnessVersion": { "type": "string" },
+        "harnessBuild": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "envPinsDigest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+      }
+    },
+    "results": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["categories", "metrics"],
+      "properties": {
+        "categories": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["execution", "swaps", "bridging", "defi", "research", "security", "analysis", "governance"],
+          "patternProperties": {
+            "^(execution|swaps|bridging|defi|research|security|analysis|governance)$": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["passAt1"],
+              "properties": { "passAt1": { "type": "number", "minimum": 0, "maximum": 100 } }
+            }
+          }
+        },
+        "metrics": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["passHat5", "svrPer100", "gasOverspendPct", "costPerTaskUsd", "medianTaskSeconds"],
+          "properties": {
+            "passHat5": { "type": "number", "minimum": 0, "maximum": 100 },
+            "svrPer100": { "type": "number", "minimum": 0, "maximum": 100 },
+            "gasOverspendPct": { "type": "number", "minimum": 0 },
+            "costPerTaskUsd": { "type": "number", "minimum": 0 },
+            "medianTaskSeconds": { "type": "number", "exclusiveMinimum": 0 }
+          }
+        }
+      }
+    },
+    "integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["runId", "traceRoot", "canaryClean"],
+      "properties": {
+        "runId": { "type": "string", "pattern": "^nbr1_[0-9a-f]{16}$" },
+        "traceRoot": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "canaryClean": { "type": "boolean" }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "tier"],
+      "properties": {
+        "kind": { "enum": ["reference", "seed", "community"] },
+        "tier": { "enum": ["verified", "self-reported"] },
+        "verifiedBy": { "type": "string" },
+        "verifiedAt": { "type": "string" }
+      }
+    }
+  }
+}

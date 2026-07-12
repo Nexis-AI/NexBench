@@ -1,0 +1,72 @@
+{
+  "schema": "nexbench.run/2.1",
+  "suite": {
+    "name": "NEXBENCH",
+    "version": "2.1",
+    "totalTasks": 214,
+    "trialsPerTask": 5
+  },
+  "agent": {
+    "id": "solana-agent-kit",
+    "name": "GPT-5.5 · Solana Agent Kit",
+    "scaffold": "Solana Agent Kit",
+    "model": "gpt-5.5",
+    "class": "agent",
+    "openSource": true
+  },
+  "run": {
+    "completedAt": "2026-06-07",
+    "harnessVersion": "2.1.3",
+    "harnessBuild": "sha256:8c1e6a0d3f4b2a97c5e18d640b9f2a7d31c8e5f0a6b4d2c9871e3f5a0b6c4d28",
+    "envPinsDigest": "sha256:94e2a32324ffd00a57f02c4ff60ee50ad3f14892790cdf6d8b14190765d44cea"
+  },
+  "results": {
+    "categories": {
+      "execution": {
+        "passAt1": 68.75
+      },
+      "swaps": {
+        "passAt1": 72.1429
+      },
+      "bridging": {
+        "passAt1": 38.3333
+      },
+      "defi": {
+        "passAt1": 55.3333
+      },
+      "research": {
+        "passAt1": 58.4615
+      },
+      "security": {
+        "passAt1": 49.2857
+      },
+      "analysis": {
+        "passAt1": 54.6154
+      },
+      "governance": {
+        "passAt1": 42
+      }
+    },
+    "metrics": {
+      "passHat5": 39.7196,
+      "svrPer100": 5.6075,
+      "gasOverspendPct": 2.6,
+      "costPerTaskUsd": 1.02,
+      "medianTaskSeconds": 98
+    }
+  },
+  "submitter": {
+    "name": "NEXBENCH seed program",
+    "contact": "bench@nex-t1.ai",
+    "github": "Nexis-AI"
+  },
+  "integrity": {
+    "runId": "nbr1_b6babcd9f36ea26c",
+    "traceRoot": "sha256:847b3c416306ba4a5bb646b9110f5347985bec3cd7f35d9bae480c70ced4b150",
+    "canaryClean": true
+  },
+  "provenance": {
+    "kind": "seed",
+    "tier": "self-reported"
+  }
+}

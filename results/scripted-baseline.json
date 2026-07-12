@@ -1,0 +1,74 @@
+{
+  "schema": "nexbench.run/2.1",
+  "suite": {
+    "name": "NEXBENCH",
+    "version": "2.1",
+    "totalTasks": 214,
+    "trialsPerTask": 5
+  },
+  "agent": {
+    "id": "scripted-baseline",
+    "name": "Scripted Baseline",
+    "scaffold": "Deterministic rule bot, no LLM",
+    "model": "Rules",
+    "class": "scripted-baseline",
+    "openSource": true
+  },
+  "run": {
+    "completedAt": "2026-06-02",
+    "harnessVersion": "2.1.3",
+    "harnessBuild": "sha256:8c1e6a0d3f4b2a97c5e18d640b9f2a7d31c8e5f0a6b4d2c9871e3f5a0b6c4d28",
+    "envPinsDigest": "sha256:94e2a32324ffd00a57f02c4ff60ee50ad3f14892790cdf6d8b14190765d44cea"
+  },
+  "results": {
+    "categories": {
+      "execution": {
+        "passAt1": 31.25
+      },
+      "swaps": {
+        "passAt1": 26.4286
+      },
+      "bridging": {
+        "passAt1": 12.5
+      },
+      "defi": {
+        "passAt1": 18.6667
+      },
+      "research": {
+        "passAt1": 3.8462
+      },
+      "security": {
+        "passAt1": 22.1429
+      },
+      "analysis": {
+        "passAt1": 8.4615
+      },
+      "governance": {
+        "passAt1": 7
+      }
+    },
+    "metrics": {
+      "passHat5": 16.8224,
+      "svrPer100": 0,
+      "gasOverspendPct": 0.9,
+      "costPerTaskUsd": 0.01,
+      "medianTaskSeconds": 6
+    }
+  },
+  "submitter": {
+    "name": "Nexis Research",
+    "contact": "bench@nex-t1.ai",
+    "github": "Nexis-AI"
+  },
+  "integrity": {
+    "runId": "nbr1_a74fb96f1c4fb30a",
+    "traceRoot": "sha256:a7662539e2a2ae4920393a712f526e7b2918cbb796c4c204c048d381b6af9f1c",
+    "canaryClean": true
+  },
+  "provenance": {
+    "kind": "reference",
+    "tier": "verified",
+    "verifiedBy": "Nexis Research",
+    "verifiedAt": "2026-06-02"
+  }
+}

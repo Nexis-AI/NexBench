@@ -1,0 +1,72 @@
+{
+  "schema": "nexbench.run/2.1",
+  "suite": {
+    "name": "NEXBENCH",
+    "version": "2.1",
+    "totalTasks": 214,
+    "trialsPerTask": 5
+  },
+  "agent": {
+    "id": "qwen3-eliza",
+    "name": "Qwen3-Max · ElizaOS",
+    "scaffold": "ElizaOS",
+    "model": "qwen3-max",
+    "class": "agent",
+    "openSource": true
+  },
+  "run": {
+    "completedAt": "2026-05-30",
+    "harnessVersion": "2.1.3",
+    "harnessBuild": "sha256:8c1e6a0d3f4b2a97c5e18d640b9f2a7d31c8e5f0a6b4d2c9871e3f5a0b6c4d28",
+    "envPinsDigest": "sha256:94e2a32324ffd00a57f02c4ff60ee50ad3f14892790cdf6d8b14190765d44cea"
+  },
+  "results": {
+    "categories": {
+      "execution": {
+        "passAt1": 54.375
+      },
+      "swaps": {
+        "passAt1": 51.4286
+      },
+      "bridging": {
+        "passAt1": 40.8333
+      },
+      "defi": {
+        "passAt1": 47.3333
+      },
+      "research": {
+        "passAt1": 57.6923
+      },
+      "security": {
+        "passAt1": 42.1429
+      },
+      "analysis": {
+        "passAt1": 52.3077
+      },
+      "governance": {
+        "passAt1": 40
+      }
+    },
+    "metrics": {
+      "passHat5": 30.8411,
+      "svrPer100": 7.0093,
+      "gasOverspendPct": 6.1,
+      "costPerTaskUsd": 0.29,
+      "medianTaskSeconds": 173
+    }
+  },
+  "submitter": {
+    "name": "NEXBENCH seed program",
+    "contact": "bench@nex-t1.ai",
+    "github": "Nexis-AI"
+  },
+  "integrity": {
+    "runId": "nbr1_9d9ae7392a35e54b",
+    "traceRoot": "sha256:25f6e481b224c6efc1dc23ee2edebeb315f51f9ac30ca55c5375186161de15c8",
+    "canaryClean": true
+  },
+  "provenance": {
+    "kind": "seed",
+    "tier": "self-reported"
+  }
+}
