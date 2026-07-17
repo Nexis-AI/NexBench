@@ -4,6 +4,12 @@ All notable changes to NEXBENCH. Package/harness patch releases move together. T
 suite and manifest wire contract are versioned independently so a tooling patch can remain
 compatible with `nexbench.run/2.1`.
 
+## nexbench 2.1.6 — 2026-07-16
+
+- Adds browser-safe `nexbench/core` and server-only `nexbench/evidence` subpath exports so the
+  platform, public site, and verifier worker can consume one published science implementation
+  without pulling Node signing primitives into client bundles.
+
 ## nexbench 2.1.5 — 2026-07-16
 
 Evidence and release-integrity patch; the 2.1 suite and `nexbench.run/2.1` wire format are

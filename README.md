@@ -24,7 +24,7 @@ Two design choices set it apart:
 - **Programmatic verifiers, not LLM judges.** Every task is graded by asserting on post-run chain state, balances, event logs, or gold numeric answers. Determinism in, no self-preference bias, no vibes.
 - **Tamper-evident by construction.** Every result is a hash-sealed run manifest. Scores must sit on a mathematically achievable grid, the run id is a content hash that recomputes on intake, and trace archives are Merkle-rooted. Twelve checks run on every submission. See the [threat model](./docs/threat-model.md).
 
-> **Status.** Suite v2.1; package/harness v2.1.5. The full 214-task suite runs against the pinned *reference environment pack*. This repository publishes **24 public task specifications**: exactly **6 `runnable-local` tasks** include bundled deterministic environments and verifiers, while **18 `metadata-only` specs** require the reference pack and are never executed by `nexbench run`.
+> **Status.** Suite v2.1; package/harness v2.1.6. The full 214-task suite runs against the pinned *reference environment pack*. This repository publishes **24 public task specifications**: exactly **6 `runnable-local` tasks** include bundled deterministic environments and verifiers, while **18 `metadata-only` specs** require the reference pack and are never executed by `nexbench run`.
 
 ## Quickstart
 

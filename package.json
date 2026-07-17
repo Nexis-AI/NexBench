@@ -1,6 +1,6 @@
 {
   "name": "nexbench",
-  "version": "2.1.5",
+  "version": "2.1.6",
   "description": "NEXBENCH — the reproducible benchmark for autonomous Web3 agents: harness, CLI, task suite, statistics, and tamper-evident submission pipeline.",
   "license": "Apache-2.0",
   "type": "module",
@@ -16,6 +16,14 @@
     ".": {
       "types": "./dist/src/index.d.ts",
       "default": "./dist/src/index.js"
+    },
+    "./core": {
+      "types": "./dist/src/core/index.d.ts",
+      "default": "./dist/src/core/index.js"
+    },
+    "./evidence": {
+      "types": "./dist/src/evidence.d.ts",
+      "default": "./dist/src/evidence.js"
     }
   },
   "files": [
