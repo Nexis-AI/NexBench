@@ -174,6 +174,23 @@ agents ([`scripted-baseline`](./src/agents/scripted-baseline.ts) and
 [`example-agent`](./src/agents/example-agent.ts)) are worth reading — the scripted baseline
 solves every runnable task and is the floor a learned agent should clear.
 
+## Use it as a CI gate
+
+The benchmark is deterministic, so a score drop is a real regression — not noise.
+Wire it into pull requests:
+
+```yaml
+# .github/workflows/nexbench.yml
+- uses: Nexis-AI/NexBench@v2.1.7
+  with:
+    agent: ./agent.yaml
+    fail-under: '60'      # fail the build if mean pass@1 drops below 60%
+    comment: 'true'       # post the scorecard on the PR
+```
+
+No API key needed for the bundled suite — it runs offline. Full inputs, outputs,
+and the fork-PR/secret caveats are in [`docs/ci.md`](./docs/ci.md).
+
 ## Submit to the leaderboard
 
 A full run against the reference environment pack produces a `nexbench.run/2.1` manifest.
@@ -203,6 +220,7 @@ provenance, one-entry-per-configuration — is in
 | [submission.md](./docs/submission.md) | The manifest, provenance, tiers, and the intake flow |
 | [verification.md](./docs/verification.md) | Evidence bundle, digest/Merkle rules, signed attestation contract |
 | [cli.md](./docs/cli.md) | Every command and flag |
+| [ci.md](./docs/ci.md) | Run NEXBENCH in GitHub Actions as a PR regression gate |
 | [tutorial-quickstart.md](./docs/tutorial-quickstart.md) | Run the suite in five minutes |
 | [tutorial-build-an-agent.md](./docs/tutorial-build-an-agent.md) | Write, run, and score an adapter |
 | [faq.md](./docs/faq.md) | Closed models, costs, contamination, ablations |

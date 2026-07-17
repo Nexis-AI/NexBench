@@ -1,0 +1,128 @@
+name: 'NEXBENCH'
+description: 'Run the NEXBENCH agent benchmark, publish a scorecard, and optionally gate the build.'
+author: 'Nexis AI'
+branding:
+  icon: 'activity'
+  color: 'purple'
+
+# Usage (see docs/ci.md):
+#
+#   - uses: Nexis-AI/NexBench@v2.1.7
+#     with:
+#       agent: ./agent.yaml
+#       fail-under: '60'
+#
+# Untrusted inputs are passed through `env:` and quoted — never interpolated
+# into a `run:` body — so a crafted input cannot inject shell commands.
+
+inputs:
+  agent:
+    description: 'Agent spec: scripted | example | ./adapter.mjs | ./agent.yaml | http(s)://host/step'
+    required: false
+    default: 'scripted'
+  trials:
+    description: 'Trials per task'
+    required: false
+    default: '5'
+  version:
+    description: 'nexbench version to install (npm dist-tag or exact version)'
+    required: false
+    default: 'latest'
+  node-version:
+    description: 'Node version used to run the harness'
+    required: false
+    default: '22.x'
+  fail-under:
+    description: 'Fail the job if mean pass@1 (percent) is below this. Empty = never fail.'
+    required: false
+    default: ''
+  comment:
+    description: 'Post the scorecard as a pull-request comment (needs pull-requests: write)'
+    required: false
+    default: 'false'
+  github-token:
+    description: 'Token used to post the PR comment'
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  pass-at-1:
+    description: 'Mean pass@1 across tasks (percent)'
+    value: ${{ steps.scorecard.outputs.pass-at-1 }}
+  pass-hat-5:
+    description: 'Reliability — share of tasks passing every trial (percent)'
+    value: ${{ steps.scorecard.outputs.pass-hat-5 }}
+  svr:
+    description: 'Safety violations per 100 tasks'
+    value: ${{ steps.scorecard.outputs.svr }}
+  cost-per-task:
+    description: 'Mean model spend per task (USD)'
+    value: ${{ steps.scorecard.outputs.cost-per-task }}
+  canary-clean:
+    description: 'false if the agent echoed the task canary (contaminated run)'
+    value: ${{ steps.scorecard.outputs.canary-clean }}
+  trace-root:
+    description: 'Merkle root over the run trace'
+    value: ${{ steps.scorecard.outputs.trace-root }}
+  report:
+    description: 'Path to the dev-report.json'
+    value: ${{ steps.run.outputs.report }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Install nexbench
+      shell: bash
+      env:
+        VERSION: ${{ inputs.version }}
+      run: npm install -g "nexbench@${VERSION}"
+
+    - name: Run the suite
+      id: run
+      shell: bash
+      env:
+        AGENT: ${{ inputs.agent }}
+        TRIALS: ${{ inputs.trials }}
+      run: |
+        set -euo pipefail
+        out="${RUNNER_TEMP}/nexbench"
+        nexbench run --agent "$AGENT" --trials "$TRIALS" --out "$out"
+        echo "report=${out}/dev-report.json" >> "$GITHUB_OUTPUT"
+
+    - name: Scorecard
+      id: scorecard
+      shell: bash
+      run: |
+        set -euo pipefail
+        report="${RUNNER_TEMP}/nexbench/dev-report.json"
+        card="${RUNNER_TEMP}/nexbench-scorecard.md"
+        node "${GITHUB_ACTION_PATH}/scripts/scorecard.mjs" "$report" --title 'NEXBENCH' > "$card"
+        cat "$card" >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Gate on pass@1
+      shell: bash
+      env:
+        FAIL_UNDER: ${{ inputs.fail-under }}
+        PASS_AT_1: ${{ steps.scorecard.outputs.pass-at-1 }}
+      run: |
+        set -euo pipefail
+        [ -n "$FAIL_UNDER" ] || { echo "no fail-under gate configured"; exit 0; }
+        awk -v p="$PASS_AT_1" -v t="$FAIL_UNDER" 'BEGIN {
+          if (p + 0 < t + 0) { printf("NEXBENCH: pass@1 %.2f%% is below the %.2f%% gate\n", p, t); exit 1 }
+          printf("NEXBENCH: pass@1 %.2f%% meets the %.2f%% gate\n", p, t)
+        }'
+
+    - name: Comment on the pull request
+      if: ${{ inputs.comment == 'true' && github.event_name == 'pull_request' }}
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        PR_NUMBER: ${{ github.event.number }}
+      run: |
+        set -euo pipefail
+        gh pr comment "$PR_NUMBER" --body-file "${RUNNER_TEMP}/nexbench-scorecard.md"

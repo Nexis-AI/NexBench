@@ -38,7 +38,35 @@ jobs:
           done
       - name: Environment-pins digest matches
         run: node dist/src/cli/index.js pins --digest
+      - name: Scorecard renderer works on a real report
+        run: |
+          node dist/src/cli/index.js run --agent example --out runs/card >/dev/null
+          node scripts/scorecard.mjs runs/card/dev-report.json --title 'NEXBENCH' > /dev/null
       - name: Experiments run
         run: |
           node dist/experiments/grid-detection.js
           node dist/experiments/bootstrap-calibration.js
+
+  # Dogfood: run the composite action from this repo against itself, so the
+  # action's wiring is verified on every push rather than assumed.
+  action:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run the NEXBENCH action (scripted baseline must clear the gate)
+        id: bench
+        uses: ./
+        with:
+          agent: scripted
+          trials: '2'
+          fail-under: '99'
+      - name: Outputs are populated
+        env:
+          PASS: ${{ steps.bench.outputs.pass-at-1 }}
+          SVR: ${{ steps.bench.outputs.svr }}
+          CANARY: ${{ steps.bench.outputs.canary-clean }}
+        run: |
+          set -euo pipefail
+          echo "pass@1=$PASS svr=$SVR canary=$CANARY"
+          [ "$CANARY" = "true" ]
+          awk -v p="$PASS" 'BEGIN { exit (p+0 >= 99) ? 0 : 1 }'
