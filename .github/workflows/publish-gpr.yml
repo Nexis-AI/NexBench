@@ -31,10 +31,12 @@ jobs:
           npm test
           npm run release:verify
       - name: Scope the package for GitHub Packages (not committed)
-        run: npm pkg set name=@nexis-ai/nexbench
+        run: |
+          npm pkg set name=@nexis-ai/nexbench
+          npm pkg delete scripts.prepare scripts.prepublishOnly
       - name: Publish to GitHub Packages
-        # The complete verification above runs before the temporary package rename.
-        # Avoid re-running prepublishOnly after the unscoped self-import has changed.
+        # Verification and compilation finish before the temporary package rename.
+        # The publish artifact intentionally omits release-only lifecycle scripts.
         run: npm publish --ignore-scripts --registry=https://npm.pkg.github.com
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
