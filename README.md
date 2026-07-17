@@ -245,6 +245,7 @@ provenance, one-entry-per-configuration — is in
 | [tutorial-quickstart.md](./docs/tutorial-quickstart.md) | Run the suite in five minutes |
 | [tutorial-build-an-agent.md](./docs/tutorial-build-an-agent.md) | Write, run, and score an adapter |
 | [faq.md](./docs/faq.md) | Closed models, costs, contamination, ablations |
+| [roadmap.md](./docs/roadmap.md) | What's shipped, what's in progress, and how to help |
 
 ## Development
 
