@@ -4,6 +4,13 @@ All notable changes to NEXBENCH. Package/harness patch releases move together. T
 suite and manifest wire contract are versioned independently so a tooling patch can remain
 compatible with `nexbench.run/2.1`.
 
+## nexbench 2.1.7 — 2026-07-17
+
+- Commits the compiled package surface and builds it during `prepack` instead of relying on a
+  git-dependency `prepare` hook. Production-only pnpm installs can now consume an immutable
+  GitHub commit without downloading TypeScript or failing when development dependencies are
+  intentionally omitted.
+
 ## nexbench 2.1.6 — 2026-07-16
 
 - Adds browser-safe `nexbench/core` and server-only `nexbench/evidence` subpath exports so the

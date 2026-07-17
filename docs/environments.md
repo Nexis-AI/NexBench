@@ -80,5 +80,5 @@ both, so an adapter that clears the public-dev tasks runs unchanged against the 
 - **Canary.** Every task file embeds a canary GUID; if it surfaces in model output the run is
   flagged contaminated (intake check #7) and that task version is retired.
 - **Versioning.** Suite versions are pinned (`nexbench.run/2.1`) so scores stay comparable
-  across the rotation. Package/harness patch versions (currently 2.1.6) may advance without a
+  across the rotation. Package/harness patch versions (currently 2.1.7) may advance without a
   wire-schema bump.
