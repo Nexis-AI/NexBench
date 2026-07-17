@@ -8,3 +8,6 @@ receipt-*.json
 
 __pycache__/
 *.pyc
+
+# Design plans may describe private-split mechanics — keep them out of the public repo.
+plans/
