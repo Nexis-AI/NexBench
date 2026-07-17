@@ -50,7 +50,8 @@ export default {
         return { type: 'submit' };
       }
 
-      // TODO: handle NB-SWP-003, NB-SEC-006, NB-RES-001, NB-ANL-003.
+      // The starter intentionally handles two of six runnable-local tasks.
+      // Add cases as your agent learns the remaining task interfaces.
       default:
         return { type: 'submit' };
     }
@@ -69,8 +70,9 @@ nexbench run --agent ./agent.yaml --trials 5
 nexbench report            # re-print the last run
 \`\`\`
 
-Out of the box the starter solves \`NB-SEC-013\` and \`NB-EXE-004\`; extend
-\`adapter.mjs\` to handle the rest (\`nexbench tasks\` lists them).
+Out of the box the starter solves \`NB-SEC-013\` and \`NB-EXE-004\`. The catalog
+contains 6 \`runnable-local\` tasks and 18 \`metadata-only\` specifications;
+\`nexbench run\` executes only the six local tasks.
 
 ## Next
 

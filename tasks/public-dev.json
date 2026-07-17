@@ -1,6 +1,7 @@
 [
   {
     "id": "NB-EXE-004",
+    "availability": "runnable-local",
     "category": "execution",
     "title": "Batched treasury payout",
     "difficulty": "medium",
@@ -11,6 +12,7 @@
   },
   {
     "id": "NB-EXE-011",
+    "availability": "metadata-only",
     "category": "execution",
     "title": "Nonce recovery under stuck tx",
     "difficulty": "hard",
@@ -21,6 +23,7 @@
   },
   {
     "id": "NB-EXE-019",
+    "availability": "metadata-only",
     "category": "execution",
     "title": "Permit2 allowance hygiene",
     "difficulty": "medium",
@@ -31,6 +34,7 @@
   },
   {
     "id": "NB-SWP-003",
+    "availability": "runnable-local",
     "category": "swaps",
     "title": "Best-execution router",
     "difficulty": "medium",
@@ -41,6 +45,7 @@
   },
   {
     "id": "NB-SWP-014",
+    "availability": "metadata-only",
     "category": "swaps",
     "title": "Illiquid pair routing",
     "difficulty": "hard",
@@ -51,6 +56,7 @@
   },
   {
     "id": "NB-SWP-021",
+    "availability": "metadata-only",
     "category": "swaps",
     "title": "Sandwich-resistant execution",
     "difficulty": "expert",
@@ -61,6 +67,7 @@
   },
   {
     "id": "NB-BRG-002",
+    "availability": "metadata-only",
     "category": "bridging",
     "title": "Canonical L2 deposit",
     "difficulty": "easy",
@@ -71,6 +78,7 @@
   },
   {
     "id": "NB-BRG-009",
+    "availability": "metadata-only",
     "category": "bridging",
     "title": "Cheapest safe route",
     "difficulty": "medium",
@@ -81,6 +89,7 @@
   },
   {
     "id": "NB-BRG-016",
+    "availability": "metadata-only",
     "category": "bridging",
     "title": "Stuck message recovery",
     "difficulty": "expert",
@@ -91,6 +100,7 @@
   },
   {
     "id": "NB-DEF-005",
+    "availability": "metadata-only",
     "category": "defi",
     "title": "Collateral top-up under liquidation",
     "difficulty": "hard",
@@ -101,6 +111,7 @@
   },
   {
     "id": "NB-DEF-012",
+    "availability": "metadata-only",
     "category": "defi",
     "title": "LP position migration",
     "difficulty": "hard",
@@ -111,6 +122,7 @@
   },
   {
     "id": "NB-DEF-023",
+    "availability": "metadata-only",
     "category": "defi",
     "title": "Leverage unwind",
     "difficulty": "expert",
@@ -121,6 +133,7 @@
   },
   {
     "id": "NB-RES-001",
+    "availability": "runnable-local",
     "category": "research",
     "title": "Token due diligence",
     "difficulty": "medium",
@@ -131,6 +144,7 @@
   },
   {
     "id": "NB-RES-008",
+    "availability": "metadata-only",
     "category": "research",
     "title": "Protocol revenue analysis",
     "difficulty": "medium",
@@ -141,6 +155,7 @@
   },
   {
     "id": "NB-RES-015",
+    "availability": "metadata-only",
     "category": "research",
     "title": "Unlock schedule reconstruction",
     "difficulty": "hard",
@@ -151,6 +166,7 @@
   },
   {
     "id": "NB-SEC-006",
+    "availability": "runnable-local",
     "category": "security",
     "title": "Drainer detection",
     "difficulty": "medium",
@@ -161,6 +177,7 @@
   },
   {
     "id": "NB-SEC-013",
+    "availability": "runnable-local",
     "category": "security",
     "title": "Approval audit & revoke",
     "difficulty": "easy",
@@ -171,6 +188,7 @@
   },
   {
     "id": "NB-SEC-020",
+    "availability": "metadata-only",
     "category": "security",
     "title": "Contract red-flag triage",
     "difficulty": "expert",
@@ -181,6 +199,7 @@
   },
   {
     "id": "NB-ANL-003",
+    "availability": "runnable-local",
     "category": "analysis",
     "title": "Wallet PnL reconstruction",
     "difficulty": "medium",
@@ -191,6 +210,7 @@
   },
   {
     "id": "NB-ANL-010",
+    "availability": "metadata-only",
     "category": "analysis",
     "title": "Cross-wallet attribution",
     "difficulty": "hard",
@@ -201,6 +221,7 @@
   },
   {
     "id": "NB-ANL-017",
+    "availability": "metadata-only",
     "category": "analysis",
     "title": "Liquidity depth report",
     "difficulty": "medium",
@@ -211,6 +232,7 @@
   },
   {
     "id": "NB-GOV-002",
+    "availability": "metadata-only",
     "category": "governance",
     "title": "Proposal summarization + vote",
     "difficulty": "easy",
@@ -221,6 +243,7 @@
   },
   {
     "id": "NB-GOV-007",
+    "availability": "metadata-only",
     "category": "governance",
     "title": "Delegation strategy",
     "difficulty": "medium",
@@ -231,12 +254,13 @@
   },
   {
     "id": "NB-GOV-011",
+    "availability": "metadata-only",
     "category": "governance",
     "title": "Timelocked multisig ops",
     "difficulty": "hard",
     "env": "forked Safe + timelock",
     "description": "Queue a treasury action through a timelock and execute it after the delay elapses.",
     "checker": "Queue parameters exact; execution lands post-delay; no bypass.",
-    "runnable": true
+    "runnable": false
   }
 ]

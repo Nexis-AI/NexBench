@@ -14,7 +14,7 @@ NEXBENCH addresses these with four design commitments: deterministic pinned envi
 
 ## 2. Task suite and taxonomy
 
-The suite comprises 214 tasks in 8 categories. Each category's task count doubles as its weight in the overall score, so the aggregate is a 214-task weighted mean rather than a mean over categories. Of the 214 tasks, 24 form a public development split; the remaining 190 are held out and rotate quarterly to limit overfitting and contamination.
+The suite comprises 214 tasks in 8 categories. Each category's task count doubles as its weight in the overall score, so the aggregate is a 214-task weighted mean rather than a mean over categories. The public catalog exposes 24 specifications: 6 are runnable locally with bundled environments and verifiers, while 18 are metadata-only and require the reference pack. The remaining 190 are held out and rotate quarterly to limit overfitting and contamination.
 
 | Code | Category | Tasks (= weight) | Representative environment |
 |------|----------|:---:|----------------------------|
@@ -111,7 +111,7 @@ Integrity is enforced by making the manifest canonical and everything else deriv
 
 - **Content-addressed run id.** The public id `nbr1_<16 hex>` is the first 16 hex of the SHA-256 over the canonical JSON of `{suite, agent{id, model, scaffold}, run{completedAt, harnessBuild, envPinsDigest}, results}`. It is recomputed at intake; any post-mint edit breaks it.
 - **Trial-grid rule.** A `pass@1` over `N` tasks × `k` trials can only equal `m / (N · k) · 100` for integer `m`. Fabricated round numbers rarely land on this grid, so alignment is a hard check. The experiment `experiments/grid-detection.ts` shows a fully fabricated manifest — which must simultaneously clear the grid in all 8 differently-sized categories — is caught with ≈100% probability; it also notes the smallest category (GOV, `N = 20`, `1.0%` grid step) is individually weak against integer guesses, which is precisely why the joint check across categories matters.
-- **Trace archive.** Every action and verifier result is recorded and Merkle-rooted into `traceRoot`; verified runs publish their traces so any grade can be re-derived.
+- **Trace evidence.** Every action, result, outcome, and typed verifier record is published in a `nexbench.evidence/1.0` bundle. Full task leaves produce `traceRoot`; verifier records produce a second `verifierEvidenceRoot`. A detached Ed25519 attestation binds both to the exact manifest and verification decision.
 - **Canary.** A GUID is embedded in every task file. If it surfaces in model output, the run is flagged contaminated and that task version is retired.
 - **Twelve intake checks.** Schema; suite/env-pin match; metric bounds and budgets; trial-grid alignment; internal consistency (`pass^5 ≤` weighted `pass@1`); run-id recomputation; canary attestation; duplicate run/trace; near-duplicate score vector; published-harness-build match; submitter identity; and rejection of unexpected fields. Error-severity failures block intake; warn-severity flags hold the run for manual review.
 
@@ -127,6 +127,6 @@ NEXBENCH grades trials as pass/fail; it does not yet award partial credit for a 
 
 ## 10. Reproducibility and citation
 
-NEXBENCH ships as a zero-dependency TypeScript/Node package (`nexbench` on npm) with a CLI (`nexbench`). The harness is open source; users supply and pay for their own inference. As a rough guide, a full 214-task × 5-trial run cost approximately **$130** (small models) to **$3,300** (frontier models) across the agents we list. The bundled public-dev environment runs 6 of the 24 public tasks fully offline and deterministically, so the scoring and integrity pipeline can be exercised end-to-end without the reference environment pack; the full suite runs against the pinned reference environment pack.
+NEXBENCH ships as a zero-dependency TypeScript/Node package (`nexbench` on npm) with a CLI (`nexbench`). The harness is open source; users supply and pay for their own inference. As a rough guide, a full 214-task × 5-trial run cost approximately **$130** (small models) to **$3,300** (frontier models) across the agents we list. The package runs 6 public tasks fully offline and deterministically; the other 18 public specifications are metadata-only, and the full suite runs against the pinned reference environment pack.
 
 **How to cite.** Please cite NEXBENCH v2.1 using the metadata in `CITATION.cff` at the repository root, which carries the canonical title, version, release date (`2026-06-02`), and repository URL.

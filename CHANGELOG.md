@@ -1,7 +1,27 @@
 # Changelog
 
-All notable changes to NEXBENCH. The suite version and the `nexbench` package version move
-together; the manifest wire schema is `nexbench.run/<version>`.
+All notable changes to NEXBENCH. Package/harness patch releases move together. The benchmark
+suite and manifest wire contract are versioned independently so a tooling patch can remain
+compatible with `nexbench.run/2.1`.
+
+## nexbench 2.1.5 — 2026-07-16
+
+Evidence and release-integrity patch; the 2.1 suite and `nexbench.run/2.1` wire format are
+unchanged.
+
+- Classifies the public catalog honestly: **6 `runnable-local` tasks** ship with environments
+  and verifiers; **18 `metadata-only` specs** require the reference environment pack.
+- Emits `nexbench.evidence/1.0` bundles with full action/result traces, per-trial verifier
+  digests, independently recomputable trace and verifier Merkle roots, complete canary scans,
+  and full trial-to-manifest score reconciliation.
+- Adds detached `nexbench.verification-attestation/1.0` Ed25519 primitives that bind the exact
+  manifest, evidence bundle, environment, verifier root, and verification decision.
+- `nexbench verify --evidence ...` validates evidence and optional signed attestations;
+  `nexbench submit --evidence ...` uploads evidence before authenticated, idempotent intake.
+- Aligns package and harness at `2.1.5`, records a reproducible compiled-runtime digest, and
+  blocks releases when package, lockfile, harness, build digest, or tag metadata drift.
+- Publishes npm releases through GitHub OIDC trusted publishing with provenance; no long-lived
+  npm token is stored in the workflow.
 
 ## nexbench 2.1.4 — 2026-07-12
 

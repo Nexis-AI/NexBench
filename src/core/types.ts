@@ -30,6 +30,16 @@ export type BenchEnvironment = { name: string; pin: string; note?: string };
 
 export type Difficulty = 'easy' | 'medium' | 'hard' | 'expert';
 
+/**
+ * Availability of a task specification in the public development split.
+ *
+ * `runnable-local` means this package contains both a deterministic environment
+ * and a programmatic verifier. `metadata-only` means the public task brief is
+ * useful for adapter design, but execution requires the private reference
+ * environment pack. Metadata-only tasks are never included by `nexbench run`.
+ */
+export type PublicTaskAvailability = 'runnable-local' | 'metadata-only';
+
 /** A task specification as stored under tasks/. */
 export type BenchTask = {
   id: string;
@@ -40,6 +50,13 @@ export type BenchTask = {
   description: string;
   /** Human-readable statement of what the programmatic checker asserts. */
   checker: string;
+};
+
+/** A task exposed in `tasks/public-dev.json`. */
+export type PublicTaskSpec = BenchTask & {
+  availability: PublicTaskAvailability;
+  /** Backwards-compatible projection retained for pre-2.1.5 consumers. */
+  runnable: boolean;
 };
 
 /* ————————————————————————— run manifests ————————————————————————— */
@@ -85,7 +102,7 @@ export type RunManifest = {
   run: {
     completedAt: string; // ISO date
     harnessVersion: string;
-    harnessBuild: string; // sha256:… of the published harness image
+    harnessBuild: string; // sha256:… of the published compiled scored runtime
     envPinsDigest: string; // sha256:… over the pinned environment set
   };
   results: {

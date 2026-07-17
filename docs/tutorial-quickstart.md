@@ -19,8 +19,8 @@ suite. To work from source instead (to add tasks or hack the harness), `git clon
 nexbench tasks
 ```
 
-You'll see all 24 public tasks (of 214) grouped by category, with the six that run offline
-flagged `runnable`.
+You'll see 24 public specifications grouped by category: six are explicitly
+`runnable-local`; the other 18 are `metadata-only` and require the reference environment.
 
 ## 3. Run the reference baseline
 
@@ -54,11 +54,14 @@ all three.
 ```bash
 ls runs/                       # a stamped directory per run
 cat runs/*/dev-report.json     # the nexbench.dev/2.1 development report
-cat runs/*/trace.json          # every action and verifier result, per trial
+cat runs/*/trace.json          # backwards-compatible raw task records
+cat runs/*/evidence.json       # nexbench.evidence/1.0 bundle
 ```
 
-The `dev-report.json` includes a `traceRoot` (a Merkle root over the per-task traces) and a
-`canaryClean` attestation — the same integrity primitives a full leaderboard manifest carries.
+The `evidence.json` bundle binds every action, action result, checker outcome, and per-trial
+verifier digest to the `traceRoot`; it also carries a separately recomputable verifier root and
+canary result. Public-dev evidence has null `runId`/`manifestDigest` by design and cannot be
+promoted to a leaderboard manifest.
 
 ## 6. Validate a real manifest
 

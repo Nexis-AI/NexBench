@@ -10,7 +10,14 @@
 import { BENCH_DEV_SCHEMA, BENCH_NAME, BENCH_VERSION, HARNESS_VERSION, TASK_COST_CAP_USD, TASK_TIMEOUT_S, TRIALS_PER_TASK } from '../core/suite.js';
 import type { AgentClass, CategoryId, Difficulty } from '../core/types.js';
 import { asAgent, type ActionResult, type AgentLike, type Observation, type TaskModule, type TrialOutcome } from '../env/types.js';
-import { canaryClean, traceRoot, type StepRecord, type TaskRecord, type TrialRecord } from './trace.js';
+import {
+  canaryClean,
+  createVerifierEvidence,
+  traceRoot,
+  type EvidenceTaskRecord,
+  type EvidenceTrialRecord,
+  type StepRecord,
+} from './trace.js';
 
 export type DevTaskResult = {
   id: string;
@@ -64,14 +71,14 @@ export async function runSuite(
   agentLike: AgentLike,
   tasks: readonly TaskModule[],
   opts: RunOptions = {},
-): Promise<{ report: DevReport; records: TaskRecord[] }> {
+): Promise<{ report: DevReport; records: EvidenceTaskRecord[] }> {
   const agent = asAgent(agentLike);
   const k = opts.trials ?? TRIALS_PER_TASK;
-  const records: TaskRecord[] = [];
+  const records: EvidenceTaskRecord[] = [];
 
   for (const task of tasks) {
     opts.onProgress?.(`run ${task.id} (${task.category})`);
-    const trials: TrialRecord[] = [];
+    const trials: EvidenceTrialRecord[] = [];
     for (let trial = 0; trial < k; trial++) {
       trials.push(await runTrial(agent, task, trial));
     }
@@ -95,7 +102,7 @@ async function runTrial(
   agent: ReturnType<typeof asAgent>,
   task: TaskModule,
   trial: number,
-): Promise<TrialRecord> {
+): Promise<EvidenceTrialRecord> {
   const { hashSeed } = await import('./rng.js');
   const seed = hashSeed(task.id, trial);
   const env = task.build(seed);
@@ -150,11 +157,15 @@ async function runTrial(
     steps: steps.length,
     detail: brokeBudget ? `budget exceeded; ${graded.detail}` : graded.detail,
   };
-  return { trial, seed, outcome, steps };
+  const record = { trial, seed, outcome, steps };
+  return {
+    ...record,
+    verifier: await createVerifierEvidence(task.id, record),
+  };
 }
 
 async function buildDevReport(
-  records: readonly TaskRecord[],
+  records: readonly EvidenceTaskRecord[],
   k: number,
   opts: RunOptions,
 ): Promise<DevReport> {

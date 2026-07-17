@@ -4,6 +4,7 @@
 
 export * from './types.js';
 export * from './suite.js';
+export * from './release.js';
 export * from './integrity.js';
 export * from './scoring.js';
 export * from './validate.js';

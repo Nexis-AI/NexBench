@@ -24,7 +24,7 @@ Two design choices set it apart:
 - **Programmatic verifiers, not LLM judges.** Every task is graded by asserting on post-run chain state, balances, event logs, or gold numeric answers. Determinism in, no self-preference bias, no vibes.
 - **Tamper-evident by construction.** Every result is a hash-sealed run manifest. Scores must sit on a mathematically achievable grid, the run id is a content hash that recomputes on intake, and trace archives are Merkle-rooted. Twelve checks run on every submission. See the [threat model](./docs/threat-model.md).
 
-> **Status.** v2.1. The harness, task interface, scoring, integrity pipeline, and a runnable offline suite are here and tested. The full 214-task suite runs against the pinned *reference environment pack*; this repository ships the **public development environment** (24 public tasks, 6 runnable fully offline) so you can build and validate an adapter end-to-end before requesting a verified run.
+> **Status.** Suite v2.1; package/harness v2.1.5. The full 214-task suite runs against the pinned *reference environment pack*. This repository publishes **24 public task specifications**: exactly **6 `runnable-local` tasks** include bundled deterministic environments and verifiers, while **18 `metadata-only` specs** require the reference pack and are never executed by `nexbench run`.
 
 ## Quickstart
 
@@ -41,7 +41,7 @@ nexbench report              # re-print the last run
 # or run a built-in reference agent
 nexbench run --agent scripted
 
-# see the task split (24 public of 214)
+# see the public catalog (6 runnable-local + 18 metadata-only)
 nexbench tasks
 
 # validate a run manifest against the 12 intake checks
@@ -96,8 +96,9 @@ story in one run.
 | GOV | Governance & Treasury Ops | 20 | Proposal parsing & policy-consistent voting, delegation, timelocked multisig ops |
 
 **214 tasks.** The task count doubles as the category weight, so the overall score is a
-task-count-weighted mean. **24 tasks are public** (development split); the other **190 are
-held out** and rotate quarterly.
+task-count-weighted mean. The public development catalog contains **6 runnable-local tasks**
+and **18 metadata-only specifications**. The other **190 tasks are held out** and rotate
+quarterly.
 
 ### Trials, scoring, and statistics
 
@@ -128,8 +129,10 @@ and a canary GUID embedded in every task file detects training contamination.
 Every result is a run manifest (`nexbench.run/2.1`). The public **run id** is a SHA-256
 content hash — `nbr1_…` — over the agent identity, suite pins, and results; edit any covered
 field and it no longer recomputes. Scores must land on the achievable **trial grid**
-(`m / tasks·trials`), so fabricated round numbers are rejected. Trace archives are
-Merkle-rooted. See [`docs/integrity.md`](./docs/integrity.md) and the
+(`m / tasks·trials`), so fabricated round numbers are rejected. Versioned evidence bundles
+bind every action, result, verifier verdict, and canary scan to independently recomputable
+Merkle roots; verified runs add a detached Ed25519 attestation. See
+[`docs/verification.md`](./docs/verification.md), [`docs/integrity.md`](./docs/integrity.md), and the
 [threat model](./docs/threat-model.md) for the full twelve-check pipeline.
 
 ## Build an agent
@@ -178,13 +181,14 @@ Validate it locally against the exact checks the intake API enforces, then submi
 
 ```bash
 nexbench validate my-run.json      # all 12 checks; exit 0 = accepted
-nexbench verify   my-run.json      # recompute run id + grid alignment
-nexbench submit   my-run.json      # dry run by default; add --yes to send
+nexbench verify   my-run.json --evidence evidence.json
+nexbench submit   my-run.json --evidence evidence.json  # dry run; add --yes
 ```
 
-`nexbench submit` refuses to send anything that would be rejected, so a submission never
-leaves your machine unless it would be accepted. Full policy — verified vs self-reported
-tiers, provenance, one-entry-per-configuration — is in
+`nexbench submit` refuses to upload a mismatched bundle. Real submission uses Bearer auth
+(`NEXBENCH_TOKEN` or `--token`) and a deterministic `Idempotency-Key`, uploads evidence first,
+then submits its durable attachment reference. Full policy — verified vs self-reported tiers,
+provenance, one-entry-per-configuration — is in
 [`docs/submission.md`](./docs/submission.md).
 
 ## Documentation
@@ -197,6 +201,7 @@ tiers, provenance, one-entry-per-configuration — is in
 | [threat-model.md](./docs/threat-model.md) | Adversaries, attacks, and the defense that stops each |
 | [environments.md](./docs/environments.md) | Pinned forks, the public-dev vs reference pack, `envPinsDigest` |
 | [submission.md](./docs/submission.md) | The manifest, provenance, tiers, and the intake flow |
+| [verification.md](./docs/verification.md) | Evidence bundle, digest/Merkle rules, signed attestation contract |
 | [cli.md](./docs/cli.md) | Every command and flag |
 | [tutorial-quickstart.md](./docs/tutorial-quickstart.md) | Run the suite in five minutes |
 | [tutorial-build-an-agent.md](./docs/tutorial-build-an-agent.md) | Write, run, and score an adapter |

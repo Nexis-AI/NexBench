@@ -50,14 +50,17 @@ browser and in Node — a manifest minted by the CLI recomputes the same identif
   post-mint edit to a covered field changes it.
 - **Manifest digest** is `sha256:` over the entire canonical manifest — a
   tamper-evident receipt body for the submission as received.
-- **Trace root** (`traceRoot`) is a Merkle root over the ordered per-task trace
-  archive, binding every recorded action and verifier result so a published
-  archive cannot be altered after the fact.
+- **Trace root** (`traceRoot`) is a Merkle root over ordered, full task records in a
+  `nexbench.evidence/1.0` bundle, binding every action, result, outcome, and verifier record.
+- **Verifier root** (`verifierEvidenceRoot`) independently binds every typed per-trial verifier
+  identity, build, verdict, and evidence digest in task/trial order.
+- **Signed decision.** A detached Ed25519 attestation binds the exact manifest digest, evidence
+  bundle digest, both roots, environment, counts, canary result, and verification decision.
 - **Trial grid.** A `pass@1` over `N` tasks × `k=5` trials can only equal
   `m/(N·k)·100` for integer `m`; per-task rates (`pass^5`, `SVR`) live on the
   coarser `1/N` grid. Fabricated round numbers rarely satisfy this constraint.
 - **Environment pins.** `envPinsDigest` is `sha256` over the pinned environment
-  set; `harnessBuild` is the `sha256` of the published harness image. Both are
+  set; `harnessBuild` is the reproducible `sha256` of the compiled scored runtime. Both are
   pinned into the manifest and covered by the run id.
 - **Canary.** A canary GUID is embedded in every task file and scanned in model
   output; an echo of it flags contamination.
@@ -79,7 +82,7 @@ the row for manual review before it is listed.
 | 7 | canary | error | Clean canary attestation required; contaminated runs rejected. |
 | 8 | duplicate | error | `runId` **and** `traceRoot` checked against every listed run. |
 | 9 | near-duplicate | warn | Score vector within one trial-grid step of an existing entry in every category → held for review. |
-| 10 | harness-build | warn | Harness image hash must match a published build; unknown builds capped at self-reported. |
+| 10 | harness-build | warn | Compiled scored-runtime digest must match a published build; unknown builds capped at self-reported. |
 | 11 | identity | error | A contactable submitter (email or HTTPS URL) is required; one entry per agent+model+scaffold. |
 | 12 | unknown-keys | warn | Fields outside the schema flagged (a vector for spoofed badges / lookalike metrics). |
 
@@ -95,8 +98,8 @@ the row for manual review before it is listed.
 | Run against an easier fork / modified corpus | Fork the suite, run against it | suite-pin (2): `envPinsDigest` / task counts mismatch | trials/tasks pins reject the fork |
 | Ship a patched verifier | Run a modified harness binary | harness-build (10): unknown build capped at self-reported | verified tier requires a re-runnable image |
 | Exceed budgets to brute-force | Spend past 900 s / $10 per task | bounds (3): budget caps fail agent-class runs | — |
-| Overfit / train on the public tasks | Memorize the 24 public tasks | public/private split (24 vs 190); no-task-specific-code rule | quarterly rotation; canary (7) |
-| Claim a verified badge without verification | Assert a badge in extra fields | unknown-keys (12): extra fields flagged | provenance tiers; identity (11) + Nexis re-execution |
+| Overfit / train on the public tasks | Memorize the 24 public specifications | public/private split (24 vs 190); no-task-specific-code rule | quarterly rotation; canary (7) |
+| Claim a verified badge without verification | Assert a badge in extra fields | unknown-keys (12): extra fields flagged | verified promotion requires a registered-key Ed25519 attestation over complete evidence |
 | Cherry-pick / inconsistent metrics | Report `pass^5` above `pass@1` | consistency (5): `pass^5 ≤ pass@1` | derived aggregates leave nothing to cherry-pick |
 | Contaminated model (task leaked to training) | Model has seen a task | canary (7): GUID echo → contaminated | affected task versions retired |
 
@@ -114,7 +117,8 @@ will accept as matching a published environment.
 
 Provenance carries a `tier`: `verified` or `self-reported`. For a **verified**
 run, Nexis re-executes a runnable image or a held-stable endpoint under the
-pinned, deterministic environment and publishes the resulting traces; because the
+pinned, deterministic environment, publishes the evidence bundle, recomputes its trace,
+verifier, canary, and manifest bindings, then issues a detached Ed25519 attestation. Because the
 harness owns all entropy (pinned forks, frozen oracles, fixed seeds), a re-run of
 a verified image reproduces the score within the reported confidence interval, or
 the run is not verified. **Self-reported** runs are labeled as such and are never
@@ -135,7 +139,8 @@ contactable submitter that check 11 requires.
   ids, gold answers, or checker logic disqualifies a run, and it does not
   generalize: the programmatic checkers and the private 190-task split rotate
   quarterly.
-- **Contamination.** The suite is split 24 public / 190 private. Canary GUIDs
+- **Contamination.** The catalog has 6 runnable-local and 18 metadata-only public specs, with
+  190 private tasks. Canary GUIDs
   detect training leakage; pinned suite versions keep old scores comparable; and
   a task version is retired when a canary hit shows it has leaked.
 

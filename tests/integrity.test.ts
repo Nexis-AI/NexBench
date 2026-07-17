@@ -73,7 +73,10 @@ test('merkleRoot is deterministic and order-sensitive', async () => {
   const r3 = await merkleRoot(['c', 'b', 'a']);
   assert.equal(r1, r2);
   assert.notEqual(r1, r3);
-  assert.match(r1, /^sha256:[0-9a-f]{64}$/);
+  assert.equal(
+    r1,
+    'sha256:0bdf27bf7ec894ca7cadfe491ec1a3ece840f117989e8c5e9bd7086467bf6c38',
+  );
 });
 
 test('manifestDigest is stable across key ordering', async () => {

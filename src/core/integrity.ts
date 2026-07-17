@@ -60,8 +60,8 @@ export async function manifestDigest(manifest: unknown): Promise<string> {
 
 /**
  * Merkle root over an ordered list of per-task trace leaves. Each leaf is
- * hashed, then adjacent hashes are combined pairwise (last odd leaf carried up)
- * until a single root remains. The root binds every recorded action and
+ * hashed, then adjacent hashes are combined pairwise (the last odd hash is
+ * duplicated as its own right sibling) until a single root remains. The root binds every recorded action and
  * verifier result so a published trace archive cannot be altered post-hoc.
  */
 export async function merkleRoot(leaves: readonly string[]): Promise<string> {
@@ -71,7 +71,7 @@ export async function merkleRoot(leaves: readonly string[]): Promise<string> {
     const next: string[] = [];
     for (let i = 0; i < level.length; i += 2) {
       const left = level[i]!;
-      const right = level[i + 1] ?? left; // carry the odd leaf up unchanged
+      const right = level[i + 1] ?? left; // duplicate an odd final hash
       next.push(await sha256Hex(`${left}${right}`));
     }
     level = next;

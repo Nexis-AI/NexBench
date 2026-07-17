@@ -15,6 +15,9 @@ export * from './core/index.js';
 // Agent interface + the bundled local environment.
 export * from './env/index.js';
 
+// Versioned trace evidence and signed verification attestations.
+export * from './evidence.js';
+
 // Harness: the run loop and trace primitives.
 export {
   runSuite,
@@ -27,6 +30,15 @@ export {
   traceRoot,
   canaryClean,
   taskLeaf,
+  createVerifierEvidence,
+  verifierEvidencePayload,
+  verifierEvidenceRoot,
+  TASK_TRACE_SCHEMA,
+  TRACE_PRODUCER,
+  VERIFIER_EVIDENCE_SCHEMA,
+  type EvidenceTaskRecord,
+  type EvidenceTrialRecord,
+  type VerifierEvidence,
   type TaskRecord,
   type TrialRecord,
   type StepRecord,

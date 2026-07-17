@@ -133,7 +133,7 @@ export const CHECK_DEFS: readonly {
     title: 'Published harness build',
     severity: 'warn',
     description:
-      'The harness image hash must match a published build. Unknown builds can only enter as self-reported: a patched binary could ship easier verifiers.',
+      'The compiled scored-runtime hash must match a published build. Unknown builds can only enter as self-reported: patched code could ship easier verifiers.',
   },
   {
     id: 'identity',
@@ -449,7 +449,7 @@ export async function validateManifest(
       : result(
           'harness-build',
           'flag',
-          `build ${m.run.harnessBuild.slice(0, 18)}… is not a published ${m.run.harnessVersion} image — capped at self-reported`,
+          `build ${m.run.harnessBuild.slice(0, 18)}… is not the published ${m.run.harnessVersion} scored runtime — capped at self-reported`,
         ),
   );
 

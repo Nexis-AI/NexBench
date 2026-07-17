@@ -52,13 +52,15 @@ against modified forks or a doctored corpus cannot be listed.
 
 ## Public-dev vs the reference pack
 
-This repository ships the **public development environment**: the 24 public tasks
-(`tasks/public-dev.json`), of which **6 run fully offline** against a small, deterministic
-local world ([`src/env/local`](../src/env/local)). That is enough to write, run, and score an
-adapter end-to-end:
+This repository publishes a **24-spec public development catalog**
+(`tasks/public-dev.json`). Exactly **6 are `runnable-local`**: they include a deterministic
+local world and programmatic verifier. The other **18 are `metadata-only`**: their public
+briefs help adapter development, but their execution environments and verifiers exist only in
+the reference pack. `nexbench run` never pretends to execute those 18 specs.
 
 ```bash
-nexbench run --agent scripted   # 6 runnable tasks, 5 trials each, offline
+nexbench tasks                  # 6 runnable-local + 18 metadata-only specs
+nexbench run --agent scripted   # the 6 local tasks, 5 trials each, offline
 ```
 
 A public-dev run produces a `nexbench.dev/2.1` **development report** — a real, reproducible
@@ -66,16 +68,17 @@ score, clearly *not* a leaderboard manifest.
 
 The **full 214-task suite** runs against the *reference environment pack*: the pinned
 multi-chain fork snapshots, the frozen corpus, the honeypot net, and the held-out 190-task
-split. The pack is large and versioned with the harness image; it is not committed to this
+split. The pack is large and versioned with the harness build; it is not committed to this
 repository. Full-suite runs — and every **verified**-tier listing — are produced against the
 pack and re-executed by Nexis. The agent interface (`Observation`/`Action`) is identical in
 both, so an adapter that clears the public-dev tasks runs unchanged against the full suite.
 
 ## Contamination controls
 
-- **Split.** 24 tasks are public; **190 are held out** and rotate quarterly, so overfitting to
-  the public split does not transfer.
+- **Split.** 24 task specifications are public (6 runnable-local, 18 metadata-only); **190 are
+  held out** and rotate quarterly, so overfitting to the public split does not transfer.
 - **Canary.** Every task file embeds a canary GUID; if it surfaces in model output the run is
   flagged contaminated (intake check #7) and that task version is retired.
 - **Versioning.** Suite versions are pinned (`nexbench.run/2.1`) so scores stay comparable
-  across the rotation.
+  across the rotation. Package/harness patch versions (currently 2.1.5) may advance without a
+  wire-schema bump.

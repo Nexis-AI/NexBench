@@ -35,8 +35,8 @@ nexbench run --agent ./agent.yaml
 
 ## `nexbench run`
 
-Run the runnable public-dev suite with an agent and print a scorecard. Fully offline and
-deterministic.
+Run the six `runnable-local` public-dev tasks with an agent and print a scorecard. Fully
+offline and deterministic; the 18 metadata-only specs are not executed.
 
 ```
 nexbench run [--agent <spec>] [--trials <N>] [--out <dir>] [--json]
@@ -46,7 +46,7 @@ nexbench run [--agent <spec>] [--trials <N>] [--out <dir>] [--json]
 |--------|---------|---------|
 | `--agent` | `example` | `scripted`, `example`, an `agent.yaml` config, a path to a JS module with a default `StepFn`/`Agent` export, or an `http(s)://…/step` endpoint URL |
 | `--trials` | `5` | Trials per task |
-| `--out` | `runs/<stamp>` | Directory to write `dev-report.json` and `trace.json` |
+| `--out` | `runs/<stamp>` | Directory to write `dev-report.json`, `trace.json`, and `evidence.json` |
 | `--json` | off | Emit the `nexbench.dev/2.1` report as JSON to stdout |
 
 An `agent.yaml` sets `adapter:` (a path to a JS/`.mjs` module) **or** `endpoint:` (an HTTP
@@ -76,7 +76,8 @@ With no argument it reads the most recent run under `runs/`; pass a run director
 
 ## `nexbench tasks`
 
-List the 24-task public-dev split (of 214), grouped by category, flagging which run offline.
+List the 24-spec public-dev catalog (of 214): 6 `runnable-local` tasks and 18
+`metadata-only` specs, grouped by category.
 
 ```
 nexbench tasks [--category <id|code>] [--json]
@@ -107,11 +108,14 @@ nexbench validate my-run.json --json
 
 ## `nexbench verify`
 
-Recompute a manifest's run id and manifest digest and check trial-grid alignment — a fast
-integrity spot-check without the full intake corpus.
+Recompute a manifest's run id and manifest digest and check trial-grid alignment. With
+`--evidence`, also recompute the complete trace root, every per-trial verifier digest, the
+verifier-evidence root, canary status, and exact manifest binding. Public-dev evidence can be
+checked without a manifest. A signed attestation requires its manifest and Ed25519 public key.
 
 ```
-nexbench verify <manifest.json> [--json]
+nexbench verify [<manifest.json>] [--evidence <bundle.json>]
+  [--attestation <attestation.json> --public-key <key.pem>] [--json]
 ```
 
 ## `nexbench mint`
@@ -145,15 +149,24 @@ nexbench pins --digest   # recompute sha256 over the set; compare to the publish
 
 ## `nexbench submit`
 
-Validate locally, then submit a manifest to the leaderboard intake. Refuses to send anything
-that would be rejected.
+Validate locally, upload a verified evidence bundle, then submit the manifest and durable
+attachment reference to the leaderboard intake. Refuses to upload a mismatched bundle.
 
 ```
-nexbench submit <manifest.json> [--endpoint <url>] [--yes]
+nexbench submit <manifest.json> [--evidence <bundle.json>] [--token <token>]
+  [--idempotency-key <key>] [--endpoint <url>] [--yes]
+
+nexbench submit --status <submissionId> [--token <token>] [--endpoint <url>] [--json]
 ```
 
-Without `--yes` it performs a **dry run** — it validates and prints the destination but sends
-nothing. Add `--yes` to POST for real. `--endpoint` overrides the default intake URL.
+Without `--yes` it performs a **dry run** — it validates and prints both destinations and the
+idempotency key, but sends nothing. Real submission reads Bearer auth from `--token` or
+`NEXBENCH_TOKEN`. The default intake is
+`https://nex-t1.ai/api/v1/nexbench/submissions`. It uploads multipart field `file` to the sibling
+`/evidence` endpoint, checks the returned attachment digest against the exact uploaded bytes,
+then POSTs `{ manifest, evidence }` to `/submissions` with
+`Idempotency-Key`. If no key is supplied, the CLI derives
+`nexbench:<runId>:<manifestDigest>`. `--status` reads the durable verification state.
 
 ## `nexbench help` / `nexbench version`
 

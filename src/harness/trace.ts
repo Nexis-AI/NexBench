@@ -5,19 +5,47 @@
  * these traces alongside the score.
  */
 
-import { canonicalJson, merkleRoot } from '../core/integrity.js';
-import { CANARY } from '../core/suite.js';
+import { canonicalJson, manifestDigest, merkleRoot } from '../core/integrity.js';
+import { BENCH_VERSION, CANARY, HARNESS_BUILD, HARNESS_VERSION } from '../core/suite.js';
 import type { CategoryId, Difficulty } from '../core/types.js';
 import type { Action, ActionResult, TrialOutcome } from '../env/types.js';
 
 export type StepRecord = { step: number; action: Action; result: ActionResult };
+
+export const TASK_TRACE_SCHEMA = 'nexbench.task-trace/2.1' as const;
+export const VERIFIER_EVIDENCE_SCHEMA = 'nexbench.verifier-evidence/1.0' as const;
+
+/**
+ * Programmatic-verifier evidence bound into every scored trial. The digest
+ * covers the seed, complete action/result trace, and checker outcome; the
+ * verifier build identifies the code that produced the verdict.
+ */
+export type VerifierEvidence = {
+  schema: typeof VERIFIER_EVIDENCE_SCHEMA;
+  taskId: string;
+  trial: number;
+  verifier: {
+    id: string;
+    version: string;
+    build: string;
+  };
+  verdict: {
+    passed: boolean;
+    violation: boolean;
+  };
+  evidenceDigest: string;
+};
 
 export type TrialRecord = {
   trial: number;
   seed: number;
   outcome: TrialOutcome;
   steps: StepRecord[];
+  /** Present on 2.1.5+ traces; older trace readers remain source-compatible. */
+  verifier?: VerifierEvidence;
 };
+
+export type EvidenceTrialRecord = TrialRecord & { verifier: VerifierEvidence };
 
 export type TaskRecord = {
   id: string;
@@ -31,23 +59,80 @@ export type TaskRecord = {
   passAll: boolean;
 };
 
-/** One canonical leaf per task, binding every recorded step and outcome. */
+export type EvidenceTaskRecord = Omit<TaskRecord, 'trials'> & {
+  trials: EvidenceTrialRecord[];
+};
+
+/** Canonical bytes whose digest a verifier signs for one trial. */
+export function verifierEvidencePayload(
+  taskId: string,
+  trial: Pick<TrialRecord, 'trial' | 'seed' | 'outcome' | 'steps'>,
+): string {
+  return canonicalJson({
+    taskId,
+    trial: trial.trial,
+    seed: trial.seed,
+    outcome: trial.outcome,
+    steps: trial.steps,
+  });
+}
+
+/** Build complete verifier evidence for one programmatically graded trial. */
+export async function createVerifierEvidence(
+  taskId: string,
+  trial: Pick<TrialRecord, 'trial' | 'seed' | 'outcome' | 'steps'>,
+  verifier: { id?: string; version?: string; build?: string } = {},
+): Promise<VerifierEvidence> {
+  return {
+    schema: VERIFIER_EVIDENCE_SCHEMA,
+    taskId,
+    trial: trial.trial,
+    verifier: {
+      id: verifier.id ?? `${taskId}/programmatic-checker`,
+      version: verifier.version ?? BENCH_VERSION,
+      build: verifier.build ?? HARNESS_BUILD,
+    },
+    verdict: {
+      passed: trial.outcome.passed,
+      violation: trial.outcome.violation,
+    },
+    evidenceDigest: await manifestDigest(
+      JSON.parse(verifierEvidencePayload(taskId, trial)) as unknown,
+    ),
+  };
+}
+
+/** One canonical leaf per task, binding every recorded step, result, and verdict. */
 export function taskLeaf(task: TaskRecord): string {
   return canonicalJson({
+    schema: TASK_TRACE_SCHEMA,
     id: task.id,
-    trials: task.trials.map((t) => ({
-      trial: t.trial,
-      seed: t.seed,
-      passed: t.outcome.passed,
-      violation: t.outcome.violation,
-      steps: t.steps.map((s) => ({ step: s.step, action: s.action, ok: s.result.ok })),
-    })),
+    category: task.category,
+    title: task.title,
+    difficulty: task.difficulty,
+    trials: task.trials,
+    passAt1: task.passAt1,
+    passAll: task.passAll,
   });
 }
 
 /** Merkle root over the task leaves in task order. */
 export function traceRoot(tasks: readonly TaskRecord[]): Promise<string> {
   return merkleRoot(tasks.map(taskLeaf));
+}
+
+/** Merkle root over verifier evidence in task/trial order. */
+export function verifierEvidenceRoot(tasks: readonly TaskRecord[]): Promise<string> {
+  const leaves: string[] = [];
+  for (const task of tasks) {
+    for (const trial of task.trials) {
+      if (!trial.verifier) {
+        throw new Error(`missing verifier evidence for ${task.id} trial ${trial.trial}`);
+      }
+      leaves.push(canonicalJson(trial.verifier));
+    }
+  }
+  return merkleRoot(leaves);
 }
 
 /**
@@ -59,18 +144,18 @@ export function canaryClean(tasks: readonly TaskRecord[]): boolean {
   for (const task of tasks) {
     for (const trial of task.trials) {
       for (const s of trial.steps) {
-        const a = s.action;
-        const emitted =
-          a.type === 'note'
-            ? a.text
-            : a.type === 'corpus_query'
-              ? a.query
-              : a.type === 'submit'
-                ? JSON.stringify(a.answer ?? null)
-                : '';
-        if (emitted.includes(CANARY)) return false;
+        // Every Action is agent-authored, including RPC params and signing
+        // intents. Scanning the canonical action closes gaps where a canary was
+        // echoed outside note/query/submit strings.
+        if (canonicalJson(s.action).includes(CANARY)) return false;
       }
     }
   }
   return true;
 }
+
+/** Release identity recorded alongside evidence generated by this harness. */
+export const TRACE_PRODUCER = {
+  harnessVersion: HARNESS_VERSION,
+  harnessBuild: HARNESS_BUILD,
+} as const;

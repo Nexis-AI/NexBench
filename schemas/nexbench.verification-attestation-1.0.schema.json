@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/Nexis-AI/NexBench/schemas/nexbench.verification-attestation-1.0.schema.json",
+  "title": "NEXBENCH verification attestation",
+  "description": "Detached Ed25519 decision that binds a run manifest to a fully recomputed NEXBENCH evidence bundle.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "subject", "environment", "evidence", "decision", "signer", "signature"],
+  "properties": {
+    "schema": { "const": "nexbench.verification-attestation/1.0" },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["runId", "manifestDigest", "traceRoot", "evidenceBundleDigest"],
+      "properties": {
+        "runId": { "type": "string", "pattern": "^nbr1_[0-9a-f]{16}$" },
+        "manifestDigest": { "$ref": "#/$defs/sha256" },
+        "traceRoot": { "$ref": "#/$defs/sha256" },
+        "evidenceBundleDigest": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["suiteVersion", "harnessVersion", "harnessBuild", "envPinsDigest"],
+      "properties": {
+        "suiteVersion": { "const": "2.1" },
+        "harnessVersion": { "type": "string", "minLength": 1 },
+        "harnessBuild": { "$ref": "#/$defs/sha256" },
+        "envPinsDigest": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["verifierEvidenceRoot", "taskCount", "trialCount", "canaryClean"],
+      "properties": {
+        "verifierEvidenceRoot": { "$ref": "#/$defs/sha256" },
+        "taskCount": { "type": "integer", "minimum": 1 },
+        "trialCount": { "type": "integer", "minimum": 1 },
+        "canaryClean": { "type": "boolean" }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["verdict", "issuedAt", "verifier", "reasonCodes"],
+      "properties": {
+        "verdict": { "enum": ["verified", "rejected"] },
+        "issuedAt": { "type": "string", "format": "date-time" },
+        "verifier": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "version"],
+          "properties": {
+            "id": { "type": "string", "minLength": 1 },
+            "version": { "type": "string", "minLength": 1 }
+          }
+        },
+        "reasonCodes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "signer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["keyId", "algorithm"],
+      "properties": {
+        "keyId": { "type": "string", "minLength": 1 },
+        "algorithm": { "const": "Ed25519" }
+      }
+    },
+    "signature": { "type": "string", "pattern": "^[A-Za-z0-9_-]+$" }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+  }
+}
+

@@ -26,6 +26,10 @@ jobs:
           registry-url: https://npm.pkg.github.com
           scope: '@nexis-ai'
       - run: npm ci
+      - name: Verify tests and immutable release metadata
+        run: |
+          npm test
+          npm run release:verify
       - name: Scope the package for GitHub Packages (not committed)
         run: npm pkg set name=@nexis-ai/nexbench
       - name: Publish to GitHub Packages

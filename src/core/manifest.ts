@@ -12,6 +12,7 @@ import {
   BENCH_VERSION,
   categories,
   ENV_PINS_DIGEST,
+  HARNESS_BUILD,
   HARNESS_VERSION,
   KNOWN_HARNESS_BUILDS,
   TOTAL_TASKS,
@@ -60,7 +61,12 @@ export async function assembleManifest(draft: ManifestDraft): Promise<RunManifes
   const harnessBuild =
     draft.run?.harnessBuild ??
     KNOWN_HARNESS_BUILDS[harnessVersion] ??
-    'sha256:0000000000000000000000000000000000000000000000000000000000000000';
+    (harnessVersion === HARNESS_VERSION ? HARNESS_BUILD : undefined);
+  if (!harnessBuild) {
+    throw new Error(
+      `harnessBuild is required for unpublished harness version ${harnessVersion}`,
+    );
+  }
 
   const snappedCategories = Object.fromEntries(
     categories.map((c) => [c.id, { passAt1: snapToTrialGrid(draft.categories[c.id], c.tasks) }]),

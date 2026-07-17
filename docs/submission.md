@@ -16,7 +16,7 @@ provenance and verification tiers, and the intake flow.
   },
   "submitter": { "name": "You", "contact": "you@lab.xyz", "github": "you" },
   "run": {
-    "completedAt": "2026-07-11", "harnessVersion": "2.1.3",
+    "completedAt": "2026-07-16", "harnessVersion": "2.1.5",
     "harnessBuild": "sha256:…", "envPinsDigest": "sha256:…"
   },
   "results": {
@@ -61,16 +61,22 @@ nexbench mint --from draft.json --out my-run.json
 
 ## Validate, then submit
 
-Validate against the exact twelve checks the intake API enforces (see [integrity.md](./integrity.md)):
+Validate the manifest and its exact evidence bundle before submitting (see
+[integrity.md](./integrity.md) and [verification.md](./verification.md)):
 
 ```bash
 nexbench validate my-run.json      # exit 0 = accepted
-nexbench submit   my-run.json      # dry run; add --yes to POST
+nexbench verify   my-run.json --evidence evidence.json
+nexbench submit   my-run.json --evidence evidence.json  # dry run
+NEXBENCH_TOKEN=... nexbench submit my-run.json --evidence evidence.json --yes
 ```
 
-`nexbench submit` will not send a manifest that fails validation. On the server side the same
-checks re-run, an optional tamper-evident receipt is issued, and accepted community runs land
-as a new file in the results repository via pull request.
+`nexbench submit` will not send a manifest that fails validation or upload evidence whose
+recomputed subject does not match it. For a real submission the CLI uploads multipart field
+`file` to `/evidence`, checks the returned content-addressed attachment, then POSTs
+`{ manifest, evidence }` to `/submissions` using Bearer auth and an `Idempotency-Key`. The
+default key is deterministic: `nexbench:<runId>:<manifestDigest>`. The durable intake record
+then moves through review/re-execution; query it with `nexbench submit --status <id>`.
 
 ## Provenance & tiers
 
@@ -86,12 +92,13 @@ as a new file in the results repository via pull request.
 
 | Tier | Meaning |
 |------|---------|
-| `verified` | Nexis re-executed a runnable image or a held-stable endpoint and reproduced the score; traces are published |
+| `verified` | Nexis re-executed a runnable image or held-stable endpoint; the full evidence bundle recomputed and a trusted Ed25519 verification attestation was issued |
 | `self-reported` | The submitter ran it; the manifest passed the checks but was not re-executed by Nexis |
 
 A run from an **unpublished harness build** is capped at `self-reported` (check #10): a patched
 binary could ship easier verifiers. Verified-tier re-execution is coordinated through the
-`submitter.contact`.
+`submitter.contact`. A `provenance.tier: "verified"` string alone is not proof: production
+promotion requires the detached attestation and the registered public key that verifies it.
 
 ## Rules
 

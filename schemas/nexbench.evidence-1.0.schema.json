@@ -1,0 +1,155 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/Nexis-AI/NexBench/schemas/nexbench.evidence-1.0.schema.json",
+  "title": "NEXBENCH trace evidence bundle",
+  "description": "Content-addressed task traces and programmatic-verifier evidence for a nexbench.run/2.1 manifest or public-dev report.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "subject", "suite", "run", "tasks", "integrity", "generatedAt"],
+  "properties": {
+    "schema": { "const": "nexbench.evidence/1.0" },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["runId", "manifestDigest", "traceRoot"],
+      "properties": {
+        "runId": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "pattern": "^nbr1_[0-9a-f]{16}$" }
+          ]
+        },
+        "manifestDigest": {
+          "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/sha256" }]
+        },
+        "traceRoot": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "suite": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version", "totalTasks", "trialsPerTask", "mode"],
+      "properties": {
+        "name": { "const": "NEXBENCH" },
+        "version": { "const": "2.1" },
+        "totalTasks": { "type": "integer", "minimum": 1 },
+        "trialsPerTask": { "type": "integer", "minimum": 1 },
+        "mode": { "enum": ["full", "public-dev"] }
+      }
+    },
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["completedAt", "harnessVersion", "harnessBuild", "envPinsDigest"],
+      "properties": {
+        "completedAt": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+        "harnessVersion": { "type": "string", "minLength": 1 },
+        "harnessBuild": { "$ref": "#/$defs/sha256" },
+        "envPinsDigest": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/task" }
+    },
+    "integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["taskCount", "trialCount", "verifierEvidenceRoot", "canaryClean"],
+      "properties": {
+        "taskCount": { "type": "integer", "minimum": 1 },
+        "trialCount": { "type": "integer", "minimum": 1 },
+        "verifierEvidenceRoot": { "$ref": "#/$defs/sha256" },
+        "canaryClean": { "type": "boolean" }
+      }
+    },
+    "generatedAt": { "type": "string", "format": "date-time" }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "verifierEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "taskId", "trial", "verifier", "verdict", "evidenceDigest"],
+      "properties": {
+        "schema": { "const": "nexbench.verifier-evidence/1.0" },
+        "taskId": { "type": "string", "minLength": 1 },
+        "trial": { "type": "integer", "minimum": 0 },
+        "verifier": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "version", "build"],
+          "properties": {
+            "id": { "type": "string", "minLength": 1 },
+            "version": { "type": "string", "minLength": 1 },
+            "build": { "$ref": "#/$defs/sha256" }
+          }
+        },
+        "verdict": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["passed", "violation"],
+          "properties": {
+            "passed": { "type": "boolean" },
+            "violation": { "type": "boolean" }
+          }
+        },
+        "evidenceDigest": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "trial": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["trial", "seed", "outcome", "steps", "verifier"],
+      "properties": {
+        "trial": { "type": "integer", "minimum": 0 },
+        "seed": { "type": "integer" },
+        "outcome": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["passed", "violation", "costUsd", "seconds", "steps", "detail"],
+          "properties": {
+            "passed": { "type": "boolean" },
+            "violation": { "type": "boolean" },
+            "costUsd": { "type": "number", "minimum": 0 },
+            "gasOverspendPct": { "type": "number", "minimum": 0 },
+            "seconds": { "type": "number", "minimum": 0 },
+            "steps": { "type": "integer", "minimum": 0 },
+            "detail": { "type": "string" }
+          }
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["step", "action", "result"],
+            "properties": {
+              "step": { "type": "integer", "minimum": 0 },
+              "action": { "type": "object" },
+              "result": { "type": "object" }
+            }
+          }
+        },
+        "verifier": { "$ref": "#/$defs/verifierEvidence" }
+      }
+    },
+    "task": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "category", "title", "difficulty", "trials", "passAt1", "passAll"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "category": {
+          "enum": ["execution", "swaps", "bridging", "defi", "research", "security", "analysis", "governance"]
+        },
+        "title": { "type": "string", "minLength": 1 },
+        "difficulty": { "enum": ["easy", "medium", "hard", "expert"] },
+        "trials": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/trial" } },
+        "passAt1": { "type": "number", "minimum": 0, "maximum": 100 },
+        "passAll": { "type": "boolean" }
+      }
+    }
+  }
+}

@@ -103,6 +103,8 @@ export type TrialOutcome = {
   violation: boolean;
   /** USD-equivalent spend across the trial. */
   costUsd: number;
+  /** Gas overspend versus the frozen-oracle optimum; required for full evidence. */
+  gasOverspendPct?: number;
   /** Wall-clock seconds simulated across the trial. */
   seconds: number;
   /** Steps consumed. */

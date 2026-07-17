@@ -4,6 +4,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { categoryById } from '../../core/suite.js';
+import { buildEvidenceBundle } from '../../evidence.js';
 import { RUNNABLE_TASKS } from '../../env/local/tasks.js';
 import { runSuite, type DevReport } from '../../harness/run.js';
 import { resolveAgent } from '../agent-config.js';
@@ -14,12 +15,23 @@ export async function runCmd(args: Args): Promise<void> {
   const trials = args.flags.trials ? Number(args.flags.trials) : undefined;
   const { agent, label } = await resolveAgent(spec);
 
-  process.stderr.write(c.dim(`running ${RUNNABLE_TASKS.length} runnable public-dev tasks with "${label}"…\n`));
+  process.stderr.write(
+    c.dim(`running ${RUNNABLE_TASKS.length} runnable-local public-dev tasks with "${label}"…\n`),
+  );
   const { report, records } = await runSuite(agent, RUNNABLE_TASKS, {
     trials,
     agent: { id: label.replace(/[^a-z0-9-]/gi, '-').toLowerCase().slice(0, 63) || 'dev-agent', name: label, scaffold: 'nexbench-local', model: spec },
     onProgress: (m) => process.stderr.write(c.gray(`  ${m}\n`)),
   });
+  const evidence = await buildEvidenceBundle({
+    records,
+    mode: 'public-dev',
+    completedAt: report.run.completedAt,
+    trialsPerTask: report.suite.trialsPerTask,
+  });
+  if (evidence.subject.traceRoot !== report.integrity.traceRoot) {
+    throw new Error('evidence trace root does not match the development report');
+  }
 
   if (args.flags.json) {
     process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
@@ -27,13 +39,17 @@ export async function runCmd(args: Args): Promise<void> {
     printScorecard(report);
   }
 
-  // Persist the run: dev report + per-task trace records.
+  // Persist the run: report, backwards-compatible raw trace, and the versioned
+  // content-addressed evidence bundle used by the verification primitives.
   const stamp = report.run.completedAt.replace(/-/g, '') + '-' + label.replace(/[^a-z0-9-]/gi, '-').toLowerCase().slice(0, 24);
   const outDir = String(args.flags.out ?? join('runs', stamp));
   mkdirSync(outDir, { recursive: true });
   writeFileSync(join(outDir, 'dev-report.json'), JSON.stringify(report, null, 2));
   writeFileSync(join(outDir, 'trace.json'), JSON.stringify(records, null, 2));
-  process.stderr.write(c.dim(`\nwrote ${join(outDir, 'dev-report.json')} and trace.json\n`));
+  writeFileSync(join(outDir, 'evidence.json'), JSON.stringify(evidence, null, 2));
+  process.stderr.write(
+    c.dim(`\nwrote ${join(outDir, 'dev-report.json')}, trace.json, and evidence.json\n`),
+  );
 }
 
 export function printScorecard(report: DevReport): void {

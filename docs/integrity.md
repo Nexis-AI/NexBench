@@ -64,13 +64,25 @@ the smallest category (GOV, `N=20`, `1.0%` step) is individually weak against in
 The trial grid is one layer; the run-id hash still has to recompute over the fabricated block,
 and it won't.
 
-## Merkle trace roots
+## Evidence and Merkle roots
 
-Every action and verifier result is recorded. Each task's trace is canonicalized into a leaf;
-the leaves are combined pairwise (an odd leaf carries up unchanged) into a single
-`traceRoot` = `sha256:…` bound into the manifest. Verified runs publish the underlying archive,
-so the published traces must hash to the committed root. `traceRoot` is also collision-checked
-on intake (check #8) — replaying someone else's trace archive is detected.
+Package/harness 2.1.5 emits `nexbench.evidence/1.0`. Each task leaf is canonical JSON over
+`{schema:"nexbench.task-trace/2.1", id, category, title, difficulty, trials, passAt1,
+passAll}`. `trials` contains the full action **and result** sequence, checker outcome, and typed
+verifier evidence. Leaves remain in task order.
+
+Merkle construction hashes each UTF-8 leaf with SHA-256, then hashes the concatenated lowercase
+hex of adjacent child hashes. When a level has an odd final child, that child is duplicated as
+its own right sibling. The final digest is prefixed `sha256:` and becomes the manifest's
+`traceRoot`.
+
+Every trial also carries `nexbench.verifier-evidence/1.0`. Its `evidenceDigest` is SHA-256 over
+canonical `{taskId, trial, seed, outcome, steps}`. Canonical verifier records are Merkle-rooted
+in task/trial order into `verifierEvidenceRoot`. The evidence verifier recomputes both roots,
+all trial digests, all counts, and the canary scan before it compares the bundle with the exact
+manifest. It also re-derives task/category pass rates and operational metrics from the trials;
+Merkle consistency alone cannot legitimize an unrelated headline score. See
+[verification.md](./verification.md) for the complete contract.
 
 ## The twelve intake checks
 
@@ -87,7 +99,7 @@ Run them yourself: `nexbench validate <manifest.json>`.
 | 7 | Canary attestation | error | Contaminated runs (the canary GUID surfaced in output) |
 | 8 | Duplicate run / trace | error | Resubmitted runs (runId) and replayed traces (traceRoot) |
 | 9 | Near-duplicate scores | warn | A score vector within one grid step of an existing entry (held for review) |
-| 10 | Published harness build | warn | Unknown harness images → capped at self-reported |
+| 10 | Published harness build | warn | Unknown compiled scored-runtime digests → capped at self-reported |
 | 11 | Submitter identity | error | Missing a contactable email/HTTPS URL |
 | 12 | Unexpected fields | warn | Fields outside the schema (spoofed badges/metrics) |
 

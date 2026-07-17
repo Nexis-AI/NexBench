@@ -1,26 +1,37 @@
-/** `nexbench tasks` — list the public-dev split (24 of 214), flagging runnable. */
+/** `nexbench tasks` — classify the 24 public specs by actual availability. */
 
-import { categories, PUBLIC_SPLIT, TOTAL_TASKS } from '../../core/suite.js';
-import type { CategoryId, Difficulty } from '../../core/types.js';
+import {
+  categories,
+  PUBLIC_METADATA_ONLY_TASKS,
+  PUBLIC_RUNNABLE_TASKS,
+  PUBLIC_SPLIT,
+  TOTAL_TASKS,
+} from '../../core/suite.js';
+import type { PublicTaskSpec } from '../../core/types.js';
 import { type Args, c, dataPath, fail, loadJson, pad } from '../util.js';
 
-type TaskSpec = {
-  id: string;
-  category: CategoryId;
-  title: string;
-  difficulty: Difficulty;
-  env: string;
-  description: string;
-  checker: string;
-  runnable: boolean;
-};
-
 export function tasksCmd(args: Args): void {
-  let specs: TaskSpec[];
+  let specs: PublicTaskSpec[];
   try {
-    specs = loadJson<TaskSpec[]>(dataPath('tasks', 'public-dev.json'));
+    specs = loadJson<PublicTaskSpec[]>(dataPath('tasks', 'public-dev.json'));
   } catch {
     fail('could not read tasks/public-dev.json');
+  }
+
+  const runnable = specs.filter((task) => task.availability === 'runnable-local');
+  const metadataOnly = specs.filter((task) => task.availability === 'metadata-only');
+  const inconsistent = specs.filter(
+    (task) => task.runnable !== (task.availability === 'runnable-local'),
+  );
+  if (
+    specs.length !== PUBLIC_SPLIT ||
+    runnable.length !== PUBLIC_RUNNABLE_TASKS ||
+    metadataOnly.length !== PUBLIC_METADATA_ONLY_TASKS ||
+    inconsistent.length > 0
+  ) {
+    fail(
+      `invalid public task catalog: expected ${PUBLIC_RUNNABLE_TASKS} runnable-local + ${PUBLIC_METADATA_ONLY_TASKS} metadata-only = ${PUBLIC_SPLIT}`,
+    );
   }
 
   const cat = args.flags.category ? String(args.flags.category) : undefined;
@@ -31,7 +42,10 @@ export function tasksCmd(args: Args): void {
     return;
   }
 
-  process.stdout.write(`\n${c.bold('NEXBENCH')} public-dev split — ${c.cyan(String(PUBLIC_SPLIT))} public of ${c.cyan(String(TOTAL_TASKS))} total tasks\n`);
+  process.stdout.write(`\n${c.bold('NEXBENCH')} public-dev catalog — ${c.cyan(String(PUBLIC_SPLIT))} public specs of ${c.cyan(String(TOTAL_TASKS))} total tasks\n`);
+  process.stdout.write(
+    `${c.green(String(PUBLIC_RUNNABLE_TASKS))} runnable-local · ${c.gray(String(PUBLIC_METADATA_ONLY_TASKS))} metadata-only (reference environment required)\n`,
+  );
   process.stdout.write(c.gray('the remaining tasks are held out and rotate quarterly\n\n'));
 
   for (const category of categories) {
@@ -39,17 +53,27 @@ export function tasksCmd(args: Args): void {
     if (!rows.length) continue;
     process.stdout.write(`${c.bold(category.code)} ${c.dim(category.label)}\n`);
     for (const t of rows) {
-      const run = t.runnable ? c.green('runnable') : c.gray('reference-env');
+      const run =
+        t.availability === 'runnable-local'
+          ? c.green('runnable-local')
+          : c.gray('metadata-only');
       process.stdout.write(`  ${pad(t.id, 12)} ${pad(t.difficulty, 8)} ${run}  ${t.title}\n`);
     }
     process.stdout.write('\n');
   }
 
-  const runnable = filtered.filter((t) => t.runnable).length;
-  process.stdout.write(c.dim(`${runnable} of these run offline in the bundled local environment (\`nexbench run\`).\n`));
+  const filteredRunnable = filtered.filter(
+    (task) => task.availability === 'runnable-local',
+  ).length;
+  const filteredMetadata = filtered.length - filteredRunnable;
+  process.stdout.write(
+    c.dim(
+      `${filteredRunnable} runnable-local; ${filteredMetadata} metadata-only in this view. Only runnable-local tasks execute under \`nexbench run\`.\n`,
+    ),
+  );
   process.stdout.write(c.dim('The full 214-task suite runs against the reference environment pack — see docs/environments.md.\n'));
 }
 
-function categoryById(id: CategoryId) {
+function categoryById(id: PublicTaskSpec['category']) {
   return categories.find((cc) => cc.id === id);
 }

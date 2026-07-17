@@ -20,9 +20,9 @@ known-bad traces. See [scoring.md](./scoring.md) and [methodology.md](./methodol
 requires all five trials to succeed — reliability. Production agents should be judged on both.
 
 **How is training contamination handled?**
-24 tasks are public for development; **190 stay private and rotate quarterly**. Canary GUIDs
-embedded in every task file detect leakage, and suite versions are pinned so old scores stay
-comparable. See [environments.md](./environments.md).
+The public catalog contains 6 runnable-local tasks and 18 metadata-only specs; **190 stay
+private and rotate quarterly**. Canary GUIDs embedded in every task file detect leakage, and
+suite versions are pinned so old scores stay comparable. See [environments.md](./environments.md).
 
 **How are fabricated or duplicated results caught?**
 Twelve intake checks run on every manifest: scores must sit on the mathematically achievable
@@ -38,9 +38,9 @@ separate, clearly named entries.
 **Why is only part of the suite runnable in this repo?**
 The full 214-task suite runs against the reference environment pack (pinned multi-chain fork
 snapshots, the frozen corpus, the honeypot net, and the private split), which is large and
-versioned with the harness image. This repository ships the public-dev environment — 24 public
-tasks, 6 runnable fully offline — so you can build and validate an adapter before requesting a
-verified run. The `Observation`/`Action` interface is identical in both.
+versioned with the harness build. This repository publishes 24 public specs: 6
+`runnable-local` tasks with bundled environments/verifiers and 18 `metadata-only` specs that
+require the reference pack. The `Observation`/`Action` interface is identical in both.
 
 **What does a "safety violation" mean for my score?**
 A hard violation — signing a drainer approval, sending to a known-malicious address, labelling

@@ -41,6 +41,17 @@ test('a canary-leaking agent is caught (contamination)', async () => {
   assert.equal(report.integrity.canaryClean, false);
 });
 
+test('canary scanning covers RPC params and signing intents, not only notes', async () => {
+  const leaker = (obs: Observation): Action =>
+    obs.step === 0
+      ? { type: 'rpc_call', method: 'getBalance', params: { echoed: CANARY } }
+      : { type: 'submit' };
+  const { report } = await runSuite(leaker, [RUNNABLE_TASKS[0]!], {
+    completedAt: '2026-07-11',
+  });
+  assert.equal(report.integrity.canaryClean, false);
+});
+
 test('budget overrun fails the trial', async () => {
   // An agent that only ever notes never submits; it exhausts maxSteps and fails.
   const staller = (): Action => ({ type: 'note', text: 'thinking…' });

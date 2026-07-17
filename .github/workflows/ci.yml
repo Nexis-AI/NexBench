@@ -25,8 +25,12 @@ jobs:
         run: npm run build
       - name: Test
         run: node --test dist/tests/*.test.js
+      - name: Release metadata is internally consistent
+        run: node scripts/verify-release.mjs
       - name: Reference baseline solves the runnable suite
         run: node dist/src/cli/index.js run --agent scripted --out runs/ci
+      - name: Public catalog is exactly 6 runnable-local plus 18 metadata-only
+        run: node dist/src/cli/index.js tasks --json >/dev/null
       - name: Every reference manifest validates
         run: |
           for f in results/*.json; do
