@@ -2,14 +2,7 @@
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { c, fail } from '../util.js';
-const AGENT_YAML = (id) => `# agent.yaml — everything nexbench needs to run your agent
-id: ${id}
-adapter: ./adapter.mjs         # or endpoint: http://localhost:8700/step
-model: any                     # bring your own — API or self-hosted
-networks: [evm, solana]
-timeout_s: 900                 # per-task wall-clock cap
-cost_cap_usd: 10               # per-task spend cap
-`;
+import { agentYaml, ANTHROPIC_ADAPTER_MJS, ANTHROPIC_PACKAGE_JSON, ANTHROPIC_README, TEMPLATES, } from '../templates.js';
 const ADAPTER_MJS = `// adapter.mjs — a runnable starter. The harness drives the loop; you return
 // one Action per step. Replace these heuristics with your model's planning.
 //
@@ -78,16 +71,32 @@ contains 6 \`runnable-local\` tasks and 18 \`metadata-only\` specifications;
 export function initCmd(args) {
     const name = args._[0];
     if (!name)
-        fail('usage: nexbench init <name>');
+        fail('usage: nexbench init <name> [--template heuristic|anthropic]');
     if (!/^[a-z0-9][a-z0-9-]{0,63}$/i.test(name))
         fail('name must be a simple slug (letters, digits, dashes)');
     if (existsSync(name))
         fail(`${name} already exists`);
+    const template = String(args.flags.template ?? 'heuristic');
+    if (!TEMPLATES.includes(template))
+        fail(`unknown template "${template}" — choose one of: ${TEMPLATES.join(', ')}`);
     mkdirSync(name, { recursive: true });
     const id = name.toLowerCase();
-    writeFileSync(join(name, 'agent.yaml'), AGENT_YAML(id));
+    writeFileSync(join(name, 'agent.yaml'), agentYaml(id, './adapter.mjs'));
+    if (template === 'anthropic') {
+        // A real-model agent. The scaffolded project owns its provider SDK; the
+        // nexbench package itself stays dependency-free.
+        writeFileSync(join(name, 'adapter.mjs'), ANTHROPIC_ADAPTER_MJS);
+        writeFileSync(join(name, 'package.json'), ANTHROPIC_PACKAGE_JSON(id));
+        writeFileSync(join(name, 'README.md'), ANTHROPIC_README(id));
+        process.stdout.write(`${c.green('created')} ${name}/ ${c.gray('(agent.yaml · adapter.mjs · package.json · README.md)')}\n`);
+        process.stdout.write(`\n  ${c.bold('cd')} ${name} && ${c.bold('npm install')}\n`);
+        process.stdout.write(`  ${c.bold('export')} ANTHROPIC_API_KEY=sk-ant-…\n`);
+        process.stdout.write(`  ${c.bold('nexbench run')} --agent ./agent.yaml\n\n`);
+        return;
+    }
     writeFileSync(join(name, 'adapter.mjs'), ADAPTER_MJS);
     writeFileSync(join(name, 'README.md'), README(id));
     process.stdout.write(`${c.green('created')} ${name}/ ${c.gray('(agent.yaml · adapter.mjs · README.md)')}\n`);
-    process.stdout.write(`\n  ${c.bold('cd')} ${name} && ${c.bold('nexbench run')} --agent ./agent.yaml\n\n`);
+    process.stdout.write(`\n  ${c.bold('cd')} ${name} && ${c.bold('nexbench run')} --agent ./agent.yaml\n`);
+    process.stdout.write(`  ${c.gray('want a real LLM agent? nexbench init <name> --template anthropic')}\n\n`);
 }

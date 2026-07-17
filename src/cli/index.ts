@@ -52,9 +52,14 @@ ${c.gray(BENCH_REPO_HREF)}
 `;
 
 const COMMAND_HELP: Record<string, string> = {
-  init: `nexbench init <name>
-  Scaffolds <name>/ with an agent.yaml, a runnable adapter.mjs starter, and a
-  README. Then: cd <name> && nexbench run --agent ./agent.yaml`,
+  init: `nexbench init <name> [--template heuristic|anthropic]
+  Scaffolds <name>/ with an agent.yaml, a runnable adapter.mjs, and a README.
+
+    heuristic (default)  zero-dependency starter; runs offline, solves two tasks
+    anthropic            a real Claude agent (@anthropic-ai/sdk); needs
+                         ANTHROPIC_API_KEY and an \`npm install\`
+
+  Then: cd <name> && nexbench run --agent ./agent.yaml`,
   run: `nexbench run [--agent scripted|example|<path>|<agent.yaml>|<url>] [--trials N] [--out <dir>] [--json]
   Runs the 6 runnable-local public-dev tasks (offline, deterministic) and prints a
   scorecard. --agent accepts a built-in ("scripted", "example"), an agent.yaml
