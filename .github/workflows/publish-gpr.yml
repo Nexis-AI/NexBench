@@ -33,6 +33,8 @@ jobs:
       - name: Scope the package for GitHub Packages (not committed)
         run: npm pkg set name=@nexis-ai/nexbench
       - name: Publish to GitHub Packages
-        run: npm publish --registry=https://npm.pkg.github.com
+        # The complete verification above runs before the temporary package rename.
+        # Avoid re-running prepublishOnly after the unscoped self-import has changed.
+        run: npm publish --ignore-scripts --registry=https://npm.pkg.github.com
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
