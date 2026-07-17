@@ -1,74 +1,53 @@
 #!/usr/bin/env python3
-"""
-Example NEXBENCH adapter as an HTTP endpoint (Python, stdlib only).
+"""Example NEXBENCH agent in Python.
 
-The harness POSTs an Observation as JSON and expects an Action as JSON in reply.
-This lets you benchmark an agent written in any language — your model weights and
-prompts never leave your process. Run it, then point the harness at it:
-
-    python3 server.py            # listens on http://localhost:8700/step
+    pip install "git+https://github.com/Nexis-AI/NexBench.git#subdirectory=python"
+    python3 server.py
     nexbench run --agent http://localhost:8700/step
 
-This example uses fixed heuristics (no model calls) to solve two runnable tasks.
-Per-trial memory is reset whenever a fresh trial begins (obs["step"] == 0).
+The harness owns the loop; you return one Action per step. This example uses
+fixed heuristics (no model calls) and solves two of the six runnable-local
+tasks — extend `step` to handle the rest.
 """
 
-import json
-from http.server import BaseHTTPRequestHandler, HTTPServer
-
-# Per-trial scratch state, reset at the start of each trial.
-state = {"revoke": []}
+from nexbench import rpc_call, revoke, safe_batch_transfer, serve, sign_request, submit
 
 
-def decide(obs: dict) -> dict:
-    task = obs["task"]["id"]
-    step = obs["step"]
-    last = obs.get("last") or {}
-    data = last.get("data")
+class ExampleAgent:
+    """Object form: `reset` is called at the start of each of the five trials,
+    so per-trial memory never leaks between them."""
 
-    if step == 0:
-        state["revoke"] = []  # new trial → clear per-trial memory
+    def __init__(self) -> None:
+        self.to_revoke: list[str] = []
 
-    # NB-SEC-013 — audit allowances, revoke the risky ones, submit.
-    if task == "NB-SEC-013":
-        if step == 0:
-            return {"type": "rpc_call", "method": "listApprovals", "params": {"token": "USDC"}}
-        if step == 1 and isinstance(data, list):
-            state["revoke"] = [r["spender"] for r in data if r.get("risky")]
-        if state["revoke"]:
-            spender = state["revoke"].pop(0)
-            return {"type": "sign_request",
-                    "intent": {"kind": "revoke", "token": "USDC", "spender": spender}}
-        return {"type": "submit"}
+    def reset(self, task_id: str, trial: int) -> None:
+        self.to_revoke = []
 
-    # NB-EXE-004 — pay every contributor in one batch transfer.
-    if task == "NB-EXE-004":
-        if step == 0:
-            return {"type": "rpc_call", "method": "getPayees"}
-        if step == 1 and isinstance(data, list):
-            return {"type": "sign_request",
-                    "intent": {"kind": "safe_batch_transfer", "token": "USDC", "payees": data}}
-        return {"type": "submit"}
+    def step(self, obs):
+        task = obs["task"]["id"]
+        step = obs["step"]
+        data = (obs.get("last") or {}).get("data")
 
-    return {"type": "submit"}
+        # NB-SEC-013 — audit allowances, revoke the risky ones, submit.
+        if task == "NB-SEC-013":
+            if step == 0:
+                return rpc_call("listApprovals", token="USDC")
+            if step == 1 and isinstance(data, list):
+                self.to_revoke = [r["spender"] for r in data if r.get("risky")]
+            if self.to_revoke:
+                return sign_request(revoke("USDC", self.to_revoke.pop(0)))
+            return submit()
 
+        # NB-EXE-004 — pay every contributor in one batch transfer.
+        if task == "NB-EXE-004":
+            if step == 0:
+                return rpc_call("getPayees")
+            if step == 1 and isinstance(data, list):
+                return sign_request(safe_batch_transfer("USDC", data))
+            return submit()
 
-class Handler(BaseHTTPRequestHandler):
-    def do_POST(self):
-        length = int(self.headers.get("content-length", 0))
-        obs = json.loads(self.rfile.read(length) or b"{}")
-        action = decide(obs)
-        body = json.dumps(action).encode()
-        self.send_response(200)
-        self.send_header("content-type", "application/json")
-        self.send_header("content-length", str(len(body)))
-        self.end_headers()
-        self.wfile.write(body)
-
-    def log_message(self, *args):  # quiet
-        pass
+        return submit()
 
 
 if __name__ == "__main__":
-    print("NEXBENCH adapter listening on http://localhost:8700/step")
-    HTTPServer(("localhost", 8700), Handler).serve_forever()
+    serve(ExampleAgent())

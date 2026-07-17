@@ -160,8 +160,29 @@ Point the harness at it:
 nexbench run --agent ./adapter.js
 ```
 
-**Any language.** Bring your own model — API or self-hosted — and if you'd rather not write
-TypeScript, expose an HTTP `/step` endpoint and the harness will drive it:
+**Python?** There's a first-class SDK — typed observations, intent constructors, and a
+zero-dependency server, with per-trial `reset` handled for you:
+
+```python
+from nexbench import serve, rpc_call, sign_request, revoke, submit
+
+def step(obs):
+    if obs["step"] == 0:
+        return rpc_call("listApprovals", token="USDC")
+    rows = (obs.get("last") or {}).get("data") or []
+    risky = [r["spender"] for r in rows if r.get("risky")]
+    return sign_request(revoke("USDC", risky[0])) if risky else submit()
+
+serve(step)   # then: nexbench run --agent http://localhost:8700/step
+```
+
+```bash
+pip install "git+https://github.com/Nexis-AI/NexBench.git#subdirectory=python"
+```
+
+See [`python/`](./python). **Any other language** works the same way — expose an HTTP
+`/step` endpoint and the harness drives it; your weights and prompts never leave your
+process, which is how closed, proprietary agents run against NEXBENCH.
 
 ```bash
 nexbench run --agent http://localhost:8700/step

@@ -11,3 +11,9 @@ __pycache__/
 
 # Design plans may describe private-split mechanics — keep them out of the public repo.
 plans/
+
+# Python SDK build artifacts
+python/dist/
+python/build/
+*.egg-info/
+__pycache__/

@@ -1,0 +1,52 @@
+name: publish-pypi
+
+# Publishes the Python agent SDK (python/) to PyPI on release.
+#
+# Uses PyPI Trusted Publishing (OIDC) — the same tokenless pattern as
+# publish-npm.yml. One-time setup on PyPI: project `nexbench` -> Publishing ->
+# add a GitHub publisher with owner `Nexis-AI`, repo `NexBench`, workflow
+# `publish-pypi.yml`. No secret is stored in this repository.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: python
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build the wheel and sdist
+        run: |
+          python -m pip install --upgrade build
+          python -m build
+
+      - name: The package imports and the contract is intact
+        run: |
+          python -m pip install dist/*.whl
+          python - <<'PY'
+          import nexbench
+          assert nexbench.rpc_call("getBalance", token="USDC") == {
+              "type": "rpc_call", "method": "getBalance", "params": {"token": "USDC"}
+          }
+          assert nexbench.submit() == {"type": "submit"}
+          assert nexbench.revoke("USDC", "0xbad")["kind"] == "revoke"
+          print("nexbench", nexbench.__version__, "OK")
+          PY
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: python/dist

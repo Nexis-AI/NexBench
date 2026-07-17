@@ -1,0 +1,32 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "nexbench"
+version = "2.1.7"
+description = "Write NEXBENCH Web3 agent-benchmark agents in Python."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Nexis AI" }]
+keywords = ["benchmark", "web3", "agents", "llm", "evaluation", "defi", "onchain"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Typing :: Typed",
+]
+# Zero runtime dependencies, on purpose — this is a protocol shim, and the
+# harness it talks to is the trust boundary for scoring.
+dependencies = []
+
+[project.urls]
+Homepage = "https://nex-t1.ai/benchmarks"
+Repository = "https://github.com/Nexis-AI/NexBench"
+Documentation = "https://github.com/Nexis-AI/NexBench#readme"
+
+[tool.hatch.build.targets.wheel]
+packages = ["nexbench"]

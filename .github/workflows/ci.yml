@@ -42,6 +42,24 @@ jobs:
         run: |
           node dist/src/cli/index.js run --agent example --out runs/card >/dev/null
           node scripts/scorecard.mjs runs/card/dev-report.json --title 'NEXBENCH' > /dev/null
+      - name: Python agent SDK drives the harness end-to-end
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet ./python
+          python3 examples/python-endpoint/server.py &
+          srv=$!
+          sleep 2
+          node dist/src/cli/index.js run --agent http://localhost:8700/step --trials 1 --out runs/py >/dev/null
+          kill "$srv"
+          python3 - <<'PY'
+          import json
+          report = json.load(open("runs/py/dev-report.json"))
+          scores = {t["id"]: t["passAt1"] for t in report["results"]["tasks"]}
+          assert scores["NB-SEC-013"] == 100, scores
+          assert scores["NB-EXE-004"] == 100, scores
+          assert report["integrity"]["canaryClean"] is True
+          print("python SDK e2e OK:", scores)
+          PY
       - name: Experiments run
         run: |
           node dist/experiments/grid-detection.js
